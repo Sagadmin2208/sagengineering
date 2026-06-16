@@ -19,23 +19,35 @@ const geistMono = Geist_Mono({
 
 // ⭐ SEO Metadata
 export const metadata = {
-  title: "SAG Engineering Product | Manufacturers  Suppliers  Exporter of Commercial Kitchen equipments stainless steel products galley equipments | Mumbai Pune India",
+  // title: "SAG Engineering Product | Manufacturers  Suppliers  Exporter of Commercial Kitchen equipments stainless steel products galley equipments | Mumbai Pune India",
+  title:  "SAG Engineering | Commercial Kitchen Equipment Manufacturer, Supplier & Exporter",
   description:
     "SAG Engineering provides high-quality SCO tages, engineering tools, industrial parts, and manufacturing solutions.",
 
-  keywords: [
-    "SCO",
-    "Tages",
-    "SAG Engineering",
-    "Engineering Tools",
-    "Industrial Parts",
-    "Mechanical Engineering",
-    "Manufacturing Solutions",
-    "Industrial Products",
-  ],
+ keywords: [
+  "commercial kitchen equipment",
+  "kitchen equipment manufacturer",
+  "stainless steel kitchen equipment",
+  "hotel kitchen equipment",
+  "restaurant kitchen equipment",
+  "industrial kitchen equipment",
+  "fast food equipment",
+  "bakery equipment",
+  "canteen kitchen equipment",
+  "catering equipment",
+  "galley equipment",
+  "commercial cooking range",
+  "SS kitchen products",
+  "kitchen equipment supplier",
+  "kitchen equipment exporter",
+  "Mumbai kitchen equipment manufacturer",
+  "Pune kitchen equipment supplier",
+  "SAG Engineering"
+],
 
   openGraph: {
-    title: "SAG Engineering Product | Manufacturers  Suppliers  Exporter of Commercial Kitchen equipments stainless steel products galley equipments | Mumbai Pune India",
+    // title: "SAG Engineering Product | Manufacturers  Suppliers  Exporter of Commercial Kitchen equipments stainless steel products galley equipments | Mumbai Pune India",
+    title:  "SAG Engineering | Commercial Kitchen Equipment Manufacturer, Supplier & Exporter",
     description:
       "Your trusted partner for SCO tages, engineering tools, and industrial manufacturing solutions.",
     url: "https://yourwebsite.com",

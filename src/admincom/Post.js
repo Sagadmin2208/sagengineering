@@ -94,7 +94,7 @@ export default function Post() {
   const fetchBlogs = async () => {
     try {
       setLoading(true);
-      const res = await fetch('http://localhost:3000/api/blog');
+      const res = await fetch('/api/blog');
       const data = await res.json();
       if (data.success) {
         setBlogs(data.blogs);
@@ -139,7 +139,7 @@ export default function Post() {
 
     try {
       setLoading(true);
-      const res = await fetch('http://localhost:3000/api/blog', {
+      const res = await fetch('/api/blog', {
         method: 'POST',
         body: form,
       });
