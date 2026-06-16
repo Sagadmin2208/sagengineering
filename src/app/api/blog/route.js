@@ -6,6 +6,9 @@ import { db } from "../../../lib/db";
 import cloudinary from "../../../lib/cloudinary";
 import slugify from "slugify";
 
+export const runtime = "nodejs";
+export const maxDuration = 60;
+
 export async function POST(req) {
   try {
     const formData = await req.formData();
