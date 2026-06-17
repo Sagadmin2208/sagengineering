@@ -14,7 +14,6 @@ function ProductsPage() {
   const [loading,             setLoading            ] = useState(true);
   const [currentPage,         setCurrentPage        ] = useState(1);
   const [totalPages,          setTotalPages         ] = useState(1);
-  const [sidebarOpen,         setSidebarOpen        ] = useState(false);
 
   /* 1. Fetch categories */
   useEffect(() => {
@@ -66,7 +65,6 @@ function ProductsPage() {
   const handleCategoryChange = (id) => {
     setSelectedCategoryId(id);
     setCurrentPage(1);
-    setSidebarOpen(false);
   };
 
   const getImageSrc = (p) => {

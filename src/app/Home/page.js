@@ -3,7 +3,7 @@ import React from "react";
 import {
   MapPin, Star, ArrowRight, Award, Users, Shield,
   Cog, Building, Zap, CheckCircle, Globe, Truck,
-  Factory, Phone, Mail,
+  Factory, Phone,
 } from 'lucide-react';
 import Hero from '@/com/Hero';
 import Link from "next/link";
