@@ -1,257 +1,182 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import { ChevronRight, Phone, Mail, ArrowRight, Menu, X, Award, ChevronDown, FileText, Youtube, Instagram, Linkedin, Facebook } from 'lucide-react';
+import { Phone, Mail, Menu, X, Award, ChevronDown, ArrowRight, FileText, Youtube, Instagram, Linkedin, Facebook } from 'lucide-react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 function Navbar() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMenuOpen, setIsMenuOpen]   = useState(false);
+  const [isScrolled, setIsScrolled]   = useState(false);
   const [showProducts, setShowProducts] = useState(false);
   const [hideTimeout, setHideTimeout] = useState(null);
-  
-  // 🔹 STATE FOR CATEGORIES FROM API
   const [productCategories, setProductCategories] = useState([]);
+  const pathname = usePathname();
 
-  // --- HELPER TO FIX IMAGE DISPLAY ---
   const getImageSrc = (imgData) => {
-    if (!imgData) return '/placeholder-image.jpg'; // Fallback if no image
-    if (imgData.startsWith('http') || imgData.startsWith('data:')) {
-      return imgData;
-    }
+    if (!imgData) return '/placeholder-image.jpg';
+    if (imgData.startsWith('http') || imgData.startsWith('data:')) return imgData;
     return `data:image/png;base64,${imgData}`;
   };
 
-  // 🔹 FETCH CATEGORIES ON MOUNT
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await fetch('/api/category');
+        const res  = await fetch('/api/category');
         const data = await res.json();
         if (data.success) {
-          // Transform API data to match your navbar structure
-          const formattedCategories = data.categories.map(cat => ({
-            name: cat.name,
-            // Use helper to format image, fallback if null
-            image: getImageSrc(cat.image), 
-            // Generate link slug from name (e.g., "Cooking Equipments" -> "cooking-equipments")
-            link: `/products/${cat.name.toLowerCase().replace(/\s+/g, '-')}` 
+          const formatted = data.categories.map(cat => ({
+            name:  cat.name,
+            image: getImageSrc(cat.image),
+            link:  `/products/${cat.name.toLowerCase().replace(/\s+/g, '-')}`,
           }));
-          
-          // Add "All" category manually at the start if you want
-          const allCategory = {
-             name: 'All',
-             image: formattedCategories[0]?.image || '', // Use first cat image as fallback
-             link: '/products/All'
-          };
-
-          setProductCategories([allCategory, ...formattedCategories]);
+          setProductCategories([
+            { name: 'All Products', image: formatted[0]?.image || '', link: '/products/All' },
+            ...formatted,
+          ]);
         }
-      } catch (error) {
-        console.error("Failed to fetch categories for navbar:", error);
+      } catch (err) {
+        console.error("Failed to fetch categories for navbar:", err);
       }
     };
-
     fetchCategories();
   }, []);
 
-  // Handle hover enter
   const handleMouseEnter = () => {
-    if (hideTimeout) {
-      clearTimeout(hideTimeout);
-      setHideTimeout(null);
-    }
+    if (hideTimeout) { clearTimeout(hideTimeout); setHideTimeout(null); }
     setShowProducts(true);
   };
-
-  // Handle hover leave with delay
   const handleMouseLeave = () => {
-    const timeout = setTimeout(() => {
-      setShowProducts(false);
-    }, 300); 
-    setHideTimeout(timeout);
+    const t = setTimeout(() => setShowProducts(false), 280);
+    setHideTimeout(t);
   };
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    const onScroll = () => setIsScrolled(window.scrollY > 40);
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
+
+  /* Close everything on navigation */
+  useEffect(() => { setIsMenuOpen(false); setShowProducts(false); }, [pathname]);
+
+  const isActive         = (href) => pathname === href;
+  const isProductsActive = pathname?.startsWith('/products') || pathname?.startsWith('/product');
+  const navLinks = ['About', 'Services', 'Contact', 'Blog', 'Gallery'];
+
+  const socialLinks = [
+    { Icon: Youtube,   href: "https://www.youtube.com/@prashantgatkal4956",            label: "YouTube"   },
+    { Icon: Instagram, href: "https://www.instagram.com/sagengineering_products/",      label: "Instagram" },
+    { Icon: Linkedin,  href: "https://www.linkedin.com/in/sag-engineering-products/",   label: "LinkedIn"  },
+    { Icon: Facebook,  href: "https://www.facebook.com/SAGEngineeringProducts/",        label: "Facebook"  },
+  ];
+
+  const linkCls = (active) =>
+    `px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
+      active
+        ? 'text-[#41BCF5] bg-[#41BCF5]/10'
+        : 'text-[#333333] hover:text-[#41BCF5] hover:bg-gray-50'
+    }`;
 
   return (
     <div className="fixed top-0 w-full z-50">
-      {/* Enhanced Top Bar */}
-      <div
-        className="text-white py-3 border-b border-gray-200/30"
-        style={{ backgroundColor: '#0B1A35' }}
-      >
-        <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center text-sm">
-            <div className="flex items-center space-x-8">
-              {/* Phone - always visible */}
-              <div className="flex items-center sm:space-x-2 space-x-1 hover:text-green-300 transition-colors duration-300">
-                <div
-                  className="rounded-full flex items-center justify-center sm:w-5 sm:h-5 w-4 h-4"
-                  style={{ backgroundColor: '#41BCF5' }}
-                >
-                  <Phone className="sm:w-3 sm:h-3 w-2.5 h-2.5" />
-                </div>
-                <span className="font-medium sm:text-base text-sm">
-                  +91 9892084449
-                </span>
-              </div>
 
-              {/* Email - hidden on mobile */}
-              <div className="hidden sm:flex items-center sm:space-x-2 space-x-1 hover:text-green-300 transition-colors duration-300">
-                <div
-                  className="rounded-full flex items-center justify-center sm:w-5 sm:h-5 w-4 h-4"
-                  style={{ backgroundColor: '#41BCF5' }}
-                >
-                  <Mail className="sm:w-3 sm:h-3 w-2.5 h-2.5" />
-                </div>
-                <span className="font-medium sm:text-base text-sm">
-                  sales@sagenginnering.in
-                </span>
-              </div>
+      {/* ── Top bar ─────────────────────────────────────────────── */}
+      <div className="bg-[#0B1A35] text-white py-2 border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center">
 
-              <div className="hidden lg:flex items-center space-x-2 hover:text-yellow-300 transition-colors duration-300">
-                <div
-                  className="w-5 h-5 rounded-full flex items-center justify-center"
-                  style={{ backgroundColor: '#41BCF5' }}
-                >
-                  <FileText size={12} />
-                </div>
-                <span className="font-medium">GST: 27AQZPG1192J1Z9</span>
-              </div>
+            {/* Contact info */}
+            <div className="flex items-center gap-5 text-sm">
+              <a href="tel:+919892084449"
+                className="flex items-center gap-2 hover:text-[#41BCF5] transition-colors group">
+                <span className="w-5 h-5 bg-[#41BCF5] rounded-full flex items-center justify-center flex-shrink-0">
+                  <Phone className="w-2.5 h-2.5" />
+                </span>
+                <span className="font-medium">+91 98920 84449</span>
+              </a>
+
+              <a href="mailto:sales@sagenginnering.in"
+                className="hidden sm:flex items-center gap-2 hover:text-[#41BCF5] transition-colors">
+                <span className="w-5 h-5 bg-[#41BCF5] rounded-full flex items-center justify-center flex-shrink-0">
+                  <Mail className="w-2.5 h-2.5" />
+                </span>
+                <span className="font-medium">sales@sagenginnering.in</span>
+              </a>
+
+              <span className="hidden lg:flex items-center gap-1.5 text-white/50 text-xs">
+                <FileText className="w-3 h-3" /> GST: 27AQZPG1192J1Z9
+              </span>
             </div>
 
-            <div className="flex items-center space-x-2">
-              <span className="text-gray-400 text-sm">Connect:</span>
-              <div className="flex space-x-2">
-                {/* Social Icons */}
-                <a href="https://www.youtube.com/@prashantgatkal4956" target="_blank" rel="noopener noreferrer">
-                  <div className="w-6 h-6 hover:opacity-80 rounded-md flex items-center justify-center transition-all duration-300 cursor-pointer group hover:scale-105" style={{ backgroundColor: '#41BCF5' }}>
-                    <Youtube className="w-3 h-3 text-white group-hover:rotate-12 transition-transform" />
-                  </div>
+            {/* Social icons */}
+            <div className="flex items-center gap-2">
+              <span className="text-white/40 text-xs hidden sm:inline mr-1">Follow:</span>
+              {socialLinks.map(({ Icon, href, label }) => (
+                <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={label}
+                  className="w-6 h-6 bg-white/10 hover:bg-[#41BCF5] rounded flex items-center justify-center transition-colors duration-200">
+                  <Icon className="w-3 h-3" />
                 </a>
-                <a href="https://www.instagram.com/sagengineering_products/" target="_blank" rel="noopener noreferrer">
-                  <div className="w-6 h-6 hover:opacity-80 rounded-md flex items-center justify-center transition-all duration-300 cursor-pointer group hover:scale-105" style={{ backgroundColor: '#41BCF5' }}>
-                    <Instagram className="w-3 h-3 text-white group-hover:rotate-12 transition-transform" />
-                  </div>
-                </a>
-                <a href="https://www.linkedin.com/in/sag-engineering-products/" target="_blank" rel="noopener noreferrer">
-                  <div className="w-6 h-6 hover:opacity-80 rounded-md flex items-center justify-center transition-all duration-300 cursor-pointer group hover:scale-105" style={{ backgroundColor: '#41BCF5' }}>
-                    <Linkedin className="w-3 h-3 text-white group-hover:rotate-12 transition-transform" />
-                  </div>
-                </a>
-                <a href="https://www.facebook.com/SAGEngineeringProducts/" target="_blank" rel="noopener noreferrer">
-                  <div className="w-6 h-6 hover:opacity-80 rounded-md flex items-center justify-center transition-all duration-300 cursor-pointer group hover:scale-105" style={{ backgroundColor: '#41BCF5' }}>
-                    <Facebook className="w-3 h-3 text-white group-hover:rotate-12 transition-transform" />
-                  </div>
-                </a>
-              </div>
+              ))}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Enhanced Main Navigation */}
-      <nav className={`transition-all duration-700 ${isScrolled ? 'bg-white/98 backdrop-blur-xl shadow-2xl py-3 border-b border-gray-100' : 'bg-white/95 backdrop-blur-lg py-5 shadow-lg'}`}>
-        <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* ── Main nav ────────────────────────────────────────────── */}
+      <nav className={`transition-all duration-400 bg-white ${
+        isScrolled ? 'shadow-md py-2' : 'shadow-sm py-3'
+      }`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center">
-            {/* Enhanced Logo */}
-            <div className="flex items-center space-x-4 group">
-              <div className="relative">
-                <Link href="/">
-                  <img src='/logomain.jpeg' alt="S.A.G. Engineering Logo" className="w-44 h-15 " />
+
+            {/* Logo */}
+            <Link href="/" className="flex-shrink-0">
+              <img src="/logomain.jpeg" alt="S.A.G. Engineering" className="h-12 w-auto object-contain" />
+            </Link>
+
+            {/* Desktop links */}
+            <div className="hidden lg:flex items-center gap-1">
+              <Link href="/" className={linkCls(isActive('/'))}>Home</Link>
+
+              {/* Products mega-menu */}
+              <div className="relative" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+                <Link href="/products/All"
+                  className={`${linkCls(isProductsActive)} flex items-center gap-1`}>
+                  Products
+                  <ChevronDown size={13}
+                    className={`transition-transform duration-300 ${showProducts ? 'rotate-180 text-[#41BCF5]' : ''}`} />
                 </Link>
-              </div>
-            </div>
-
-            {/* Enhanced Desktop Menu */}
-            <div className="hidden lg:flex items-center space-x-2">
-              <Link
-                href="/"
-                className="relative px-5 py-3 rounded-2xl transition-all duration-300 font-semibold group overflow-hidden"
-                style={{ color: '#333333' }}
-                onMouseEnter={(e) => e.target.style.color = '##41BCF5'}
-                onMouseLeave={(e) => e.target.style.color = '#333333'}
-              >
-                <div className="absolute inset-0 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left rounded-2xl opacity-10" style={{ backgroundColor: '#41BCF5' }}></div>
-                <span className="relative">Home</span>
-              </Link>
-
-              {/* Enhanced Products Dropdown */}
-              <div
-                className="relative"
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
-              >
-                <button
-                  className="relative flex items-center px-5 py-3 rounded-2xl transition-all duration-300 font-semibold group overflow-hidden"
-                  style={{ color: '#333333' }}
-                  onMouseEnter={(e) => e.target.style.color = '##41BCF5'}
-                  onMouseLeave={(e) => e.target.style.color = '#333333'}
-                >
-                  <div className="absolute inset-0 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left rounded-2xl opacity-10" style={{ backgroundColor: '#41BCF5' }}></div>
-                  <Link href='/products/cooking-equipments' ><span className="relative mr-1">Products</span></Link>
-                  <ChevronDown
-                    size={16}
-                    className={`relative transition-all duration-500 ${showProducts ? 'rotate-180' : ''}`}
-                    style={{ color: showProducts ? '##41BCF5' : 'inherit' }}
-                  />
-                </button>
 
                 {showProducts && (
-                  <div className="absolute top-full left-1/2 mt-3 w-[900px] bg-white/98 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-100 animate-fadeInDown -translate-x-1/2">
-                    <div className="p-6">
-                      <div className="grid grid-cols-6 gap-6">
-                        {/* 🔹 MAPPED FROM API STATE */}
-                        {productCategories.slice(0, 12).map((category, index) => (
-                          <Link
-                            key={index}
-                            href={category.link}
-                            onClick={() => setShowProducts(false)}
-                          >
-                            <div
-                              className="flex flex-col items-center text-center p-4 rounded-xl transition-all duration-300 cursor-pointer hover:shadow-lg"
-                              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#F4F6F8'}
-                              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                            >
-                              <img
-                                src={category.image}
-                                alt={category.name}
-                                className="w-16 h-16 object-cover mb-2 rounded-lg"
-                              />
-                              <h3
-                                className="font-bold text-sm uppercase tracking-wide"
-                                style={{ color: '#0B1A35' }}
-                              >
-                                {category.name}
-                              </h3>
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2
+                                  w-[860px] bg-white rounded-2xl shadow-2xl
+                                  border border-gray-100 animate-fadeInDown">
+                    <div className="p-5">
+                      <div className="grid grid-cols-6 gap-2">
+                        {productCategories.slice(0, 12).map((cat, i) => (
+                          <Link key={i} href={cat.link} onClick={() => setShowProducts(false)}
+                            className="flex flex-col items-center text-center p-3 rounded-xl
+                                       hover:bg-[#F4F6F8] transition-all duration-200 group">
+                            <div className="w-14 h-14 rounded-xl overflow-hidden mb-2 bg-gray-50
+                                            border border-gray-100 group-hover:border-[#41BCF5]/40
+                                            transition-colors flex-shrink-0">
+                              <img src={cat.image} alt={cat.name}
+                                className="w-full h-full object-cover" />
                             </div>
+                            <span className="text-[10px] font-bold uppercase tracking-wide
+                                             text-[#0B1A35] group-hover:text-[#41BCF5]
+                                             transition-colors leading-tight">
+                              {cat.name}
+                            </span>
                           </Link>
                         ))}
                       </div>
-
-                      <div className="mt-6 pt-4 border-t border-gray-100 text-center">
-                        <Link
-                          href="/products/All"
-                          onClick={() => setShowProducts(false)}
-                          className="inline-flex items-center font-bold text-sm px-6 py-3 rounded-2xl transition-all duration-300"
-                          style={{ color: '##41BCF5', backgroundColor: '#F4F6F8' }}
-                          onMouseEnter={(e) => {
-                            e.target.style.backgroundColor = '#41BCF5';
-                            e.target.style.color = '#FFFFFF';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.target.style.backgroundColor = '#F4F6F8';
-                            e.target.style.color = '##41BCF5';
-                          }}
-                        >
-                          Explore All Products
-                          <ArrowRight size={16} className="ml-2" />
+                      <div className="mt-4 pt-4 border-t border-gray-100 flex justify-center">
+                        <Link href="/products/All" onClick={() => setShowProducts(false)}
+                          className="inline-flex items-center gap-2 text-sm font-bold
+                                     px-6 py-2.5 rounded-xl bg-[#0B1A35] text-white
+                                     hover:bg-[#41BCF5] transition-colors duration-200">
+                          View All Products <ArrowRight size={14} />
                         </Link>
                       </div>
                     </div>
@@ -259,167 +184,79 @@ function Navbar() {
                 )}
               </div>
 
-              {['About', 'Services', 'Contact', 'Blog', 'Gallery'].map((item) => (
-                <Link
-                  key={item}
-                  href={`/${item.toLowerCase()}`}
-                  className="relative px-5 py-3 rounded-2xl transition-all duration-300 font-semibold group overflow-hidden"
-                  style={{ color: '#333333' }}
-                  onMouseEnter={(e) => e.target.style.color = '##41BCF5'}
-                  onMouseLeave={(e) => e.target.style.color = '#333333'}
-                >
-                  <div className="absolute inset-0 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left rounded-2xl opacity-10" style={{ backgroundColor: '#41BCF5' }}></div>
-                  <span className="relative">{item}</span>
+              {navLinks.map((item) => (
+                <Link key={item} href={`/${item.toLowerCase()}`}
+                  className={linkCls(isActive(`/${item.toLowerCase()}`))}>
+                  {item}
                 </Link>
               ))}
 
-              <Link href='/contact'>
-                <button
-                  className="ml-6 bg-[#41BCF5] text-white px-8 py-4 rounded-2xl font-bold shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-1 hover:scale-105 relative overflow-hidden group"
-                >
-                  <span className="relative flex items-center">
-                    <Award className="mr-2 group-hover:rotate-12 transition-transform duration-300" size={16} />
-                    Get Quote
-                  </span>
+              <Link href="/contact">
+                <button className="ml-3 bg-[#41BCF5] hover:bg-[#0B1A35] text-white
+                                   px-5 py-2.5 rounded-xl font-bold text-sm shadow
+                                   hover:shadow-lg transition-all duration-300
+                                   flex items-center gap-2 group">
+                  <Award size={14} className="group-hover:rotate-12 transition-transform" />
+                  Get Quote
                 </button>
               </Link>
             </div>
 
-            {/* Enhanced Mobile Menu Button */}
+            {/* Mobile hamburger */}
             <button
-              className="lg:hidden p-4 rounded-2xl transition-all duration-300 group"
-              style={{ backgroundColor: '#F4F6F8' }}
-              onMouseEnter={(e) => e.target.style.backgroundColor = '#41BCF520'}
-              onMouseLeave={(e) => e.target.style.backgroundColor = '#F4F6F8'}
+              className="lg:hidden p-2.5 rounded-xl bg-gray-100 hover:bg-[#41BCF5]/10
+                         transition-colors"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-              <div className="relative">
-                {isMenuOpen ?
-                  <X size={24} className="group-hover:rotate-90 transition-transform duration-300" style={{ color: '##41BCF5' }} /> :
-                  <Menu size={24} className="group-hover:scale-110 transition-transform duration-300" style={{ color: '#0B1A35' }} />
-                }
-              </div>
+              aria-label="Toggle menu">
+              {isMenuOpen
+                ? <X    size={22} className="text-[#0B1A35]" />
+                : <Menu size={22} className="text-[#0B1A35]" />}
             </button>
           </div>
 
-         {/* Enhanced Mobile Menu */}
+          {/* ── Mobile menu ──────────────────────────────────────── */}
           {isMenuOpen && (
-            <div className="lg:hidden mt-8 pb-8 border-t border-gray-100">
-              <div className="flex flex-col space-y-3 pt-8">
-                
-                {/* 1. Added onClick to close menu on Home click */}
-                <Link
-                  href="/"
-                  onClick={() => setIsMenuOpen(false)}
-                  className="transition-all duration-300 py-4 px-6 rounded-2xl font-semibold group"
-                  style={{ color: '#333333' }}
-                  onMouseEnter={(e) => {
-                    e.target.style.color = '#41BCF5';
-                    e.target.style.backgroundColor = '#F4F6F8';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.color = '#333333';
-                    e.target.style.backgroundColor = 'transparent';
-                  }}
-                >
-                  <span className="flex items-center">
-                    <div className="w-2 h-2 rounded-full mr-3 group-hover:scale-150 transition-transform duration-300" style={{ backgroundColor: '#41BCF5' }}></div>
-                    Home
-                  </span>
-                </Link>
+            <div className="lg:hidden mt-3 pb-4 border-t border-gray-100 animate-fadeInDown">
+              <div className="flex flex-col gap-1 pt-3">
 
-                {/* Enhanced Mobile Products */}
-                <div className="space-y-3">
-                  <button
-                    onClick={() => setShowProducts(!showProducts)}
-                    className="w-full text-left flex items-center justify-between transition-all duration-300 py-4 px-6 rounded-2xl font-semibold group"
-                    style={{ color: '#333333' }}
-                    onMouseEnter={(e) => {
-                      e.target.style.color = '#41BCF5';
-                      e.target.style.backgroundColor = '#F4F6F8';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.color = '#333333';
-                      e.target.style.backgroundColor = 'transparent';
-                    }}
-                  >
-                    <span className="flex items-center">
-                      <div className="w-2 h-2 rounded-full mr-3 group-hover:scale-150 transition-transform duration-300" style={{ backgroundColor: '#41BCF5' }}></div>
-                      Products
-                    </span>
-                    <ChevronDown
-                      size={16}
-                      className={`transition-all duration-500 ${showProducts ? 'rotate-180' : ''}`}
-                      style={{ color: showProducts ? '#41BCF5' : 'inherit' }}
-                    />
+                <Link href="/" onClick={() => setIsMenuOpen(false)}
+                  className={linkCls(isActive('/'))}>Home</Link>
+
+                {/* Mobile products accordion */}
+                <div>
+                  <button onClick={() => setShowProducts(!showProducts)}
+                    className={`${linkCls(isProductsActive)} w-full flex justify-between`}>
+                    Products
+                    <ChevronDown size={14}
+                      className={`transition-transform ${showProducts ? 'rotate-180' : ''}`} />
                   </button>
-
                   {showProducts && (
-                    <div className="ml-6 space-y-2 rounded-2xl p-4" style={{ backgroundColor: '#F4F6F8' }}>
-                      {/* 🔹 MAPPED FROM API STATE (Mobile) - You already had this correct! */}
-                      {productCategories.map((category, index) => (
-                        <Link
-                          key={index}
-                          href={category.link}
-                          onClick={() => {
-                            setShowProducts(false);
-                            setIsMenuOpen(false);
-                          }}
-                          className="block py-3 px-4 rounded-xl text-sm transition-all duration-300 group"
-                          style={{ color: '#333333' }}
-                          onMouseEnter={(e) => {
-                            e.target.style.color = '#41BCF5';
-                            e.target.style.backgroundColor = '#FFFFFF';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.target.style.color = '#333333';
-                            e.target.style.backgroundColor = 'transparent';
-                          }}
-                        >
-                          <span className="flex items-center">
-                            <ChevronRight size={12} className="mr-2 group-hover:translate-x-1 transition-transform duration-300" />
-                            {category.name}
-                          </span>
+                    <div className="mx-3 mt-1 bg-gray-50 rounded-xl p-3 space-y-0.5">
+                      {productCategories.map((cat, i) => (
+                        <Link key={i} href={cat.link}
+                          onClick={() => { setShowProducts(false); setIsMenuOpen(false); }}
+                          className="block py-2 px-3 rounded-lg text-sm text-gray-600
+                                     hover:text-[#41BCF5] hover:bg-white transition-colors">
+                          {cat.name}
                         </Link>
                       ))}
                     </div>
                   )}
                 </div>
 
-                {['About', 'Services', 'Contact', 'Blog', 'Gallery'].map((item) => (
-                  <Link
-                    key={item}
-                    href={`/${item.toLowerCase()}`}
-                    // 2. Added onClick here to close menu for mapped items
+                {navLinks.map((item) => (
+                  <Link key={item} href={`/${item.toLowerCase()}`}
                     onClick={() => setIsMenuOpen(false)}
-                    className="transition-all duration-300 py-4 px-6 rounded-2xl font-semibold group"
-                    style={{ color: '#333333' }}
-                    onMouseEnter={(e) => {
-                      e.target.style.color = '#41BCF5';
-                      e.target.style.backgroundColor = '#F4F6F8';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.color = '#333333';
-                      e.target.style.backgroundColor = 'transparent';
-                    }}
-                  >
-                    <span className="flex items-center">
-                      <div className="w-2 h-2 rounded-full mr-3 group-hover:scale-150 transition-transform duration-300" style={{ backgroundColor: '#41BCF5' }}></div>
-                      {item}
-                    </span>
+                    className={linkCls(isActive(`/${item.toLowerCase()}`))}>
+                    {item}
                   </Link>
                 ))}
 
-                {/* 3. Added onClick to the final CTA Quote button */}
-                <Link href="/contact" onClick={() => setIsMenuOpen(false)}>
-                  <button
-                    className="text-white px-8 py-5 rounded-2xl mt-6 font-bold shadow-lg hover:shadow-xl transition-all duration-300 relative overflow-hidden group w-full"
-                    style={{ background: '#41BCF5' }}
-                  >
-                    <span className="relative flex items-center justify-center">
-                      <Award className="mr-2" size={20} />
-                      Get Your Quote Now
-                    </span>
+                <Link href="/contact" onClick={() => setIsMenuOpen(false)} className="mt-2">
+                  <button className="w-full bg-[#41BCF5] text-white py-3 px-6
+                                     rounded-xl font-bold text-sm flex items-center
+                                     justify-center gap-2 hover:bg-[#0B1A35] transition-colors">
+                    <Award size={15} /> Get Your Quote
                   </button>
                 </Link>
               </div>
@@ -428,7 +265,7 @@ function Navbar() {
         </div>
       </nav>
     </div>
-  )
+  );
 }
 
 export default Navbar;

@@ -1,299 +1,229 @@
-import { ArrowRight, Star, Award, Users, Target } from 'lucide-react';
+"use client";
+import { ArrowRight, Award, Users, Target, Star } from 'lucide-react';
 import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
 
+const FALLBACK_IMAGES = [
+  "./Cooking Equipments.png",
+  "./Commercial Kitchen Exhaut Hood 4.jpeg",
+  "./Cooking Equipments 1.jpeg",
+  "./Cooking Equipments 2.jpg",
+];
+
+const STATS = [
+  { icon: Award,  value: "15+",  label: "Years Experience" },
+  { icon: Users,  value: "500+", label: "Happy Clients"     },
+  { icon: Star,   value: "5.0",  label: "Google Rating"     },
+  { icon: Target, value: "24/7", label: "Customer Support"  },
+];
+
 function Hero() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [backgroundImages, setBackgroundImages] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [backgroundImages, setBackgroundImages]   = useState([]);
+  const [loading, setLoading]                     = useState(true);
 
-  // Fetch images from API
   useEffect(() => {
     const fetchImages = async () => {
       try {
         const response = await fetch('/api/homepage');
-        const data = await response.json();
-        
-        if (data.success && data.images && data.images.length > 0) {
-          // Extract imageUrl from each image object
-          const imageUrls = data.images.map(img => img.imageUrl);
-          setBackgroundImages(imageUrls);
+        const data     = await response.json();
+        if (data.success && data.images?.length > 0) {
+          setBackgroundImages(data.images.map(img => img.imageUrl));
         } else {
-          // Fallback images if API fails
-          setBackgroundImages([
-            "./Cooking Equipments.png",
-            "./Commercial Kitchen Exhaut Hood 4.jpeg",
-            "./Cooking Equipments 1.jpeg",
-            "./Cooking Equipments 2.jpg"
-          ]);
+          setBackgroundImages(FALLBACK_IMAGES);
         }
-      } catch (error) {
-        console.error('Error fetching images:', error);
-        // Fallback images on error
-        setBackgroundImages([
-          "./Cooking Equipments.png",
-          "./Commercial Kitchen Exhaut Hood 4.jpeg",
-          "./Cooking Equipments 1.jpeg",
-          "./Cooking Equipments 2.jpg"
-        ]);
+      } catch {
+        setBackgroundImages(FALLBACK_IMAGES);
       } finally {
         setLoading(false);
       }
     };
-
     fetchImages();
   }, []);
 
-  // Image carousel effect
   useEffect(() => {
     if (backgroundImages.length === 0) return;
-
-    const interval = setInterval(() => {
-      setCurrentImageIndex((prev) => (prev + 1) % backgroundImages.length);
-    }, 5000);
-
-    return () => clearInterval(interval);
+    const id = setInterval(
+      () => setCurrentImageIndex(prev => (prev + 1) % backgroundImages.length),
+      5000
+    );
+    return () => clearInterval(id);
   }, [backgroundImages]);
 
   return (
-    <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 mt-25">
+    <section className="relative min-h-screen overflow-hidden bg-[#071122] mt-36">
 
-      {/* Animated Background Elements */}
+      {/* ── Background layer ──────────────────────────────────── */}
       <div className="absolute inset-0">
-        {/* Primary Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-900/95 via-slate-800/80 to-transparent"></div>
-
-        {/* Floating Geometric Shapes */}
-        <div className="absolute top-20 left-10 w-32 h-32 bg-blue-500/10 rounded-full blur-xl animate-pulse"></div>
-        <div className="absolute top-40 right-20 w-24 h-24 bg-cyan-400/10 rounded-full blur-lg animate-bounce"></div>
-        <div className="absolute bottom-40 left-1/4 w-40 h-40 bg-blue-600/5 rounded-full blur-2xl animate-pulse"></div>
-
-        {/* Grid Pattern */}
-        <div className="absolute inset-0 opacity-5">
-          <div className="w-full h-full" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-          }}></div>
-        </div>
+        {!loading && backgroundImages.map((img, idx) => (
+          <img
+            key={idx}
+            src={img}
+            alt=""
+            aria-hidden
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
+              idx === currentImageIndex ? 'opacity-100' : 'opacity-0'
+            }`}
+          />
+        ))}
+        {/* Gradient overlays */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#071122]/95 via-[#071122]/75 to-[#071122]/30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#071122]/80 via-transparent to-transparent" />
+        {/* Subtle dot grid */}
+        <div className="absolute inset-0 opacity-[0.04]"
+          style={{ backgroundImage: "radial-gradient(#fff 1px,transparent 1px)", backgroundSize: "40px 40px" }} />
       </div>
 
-      {/* Main Content */}
-      <div className="relative z-10 px-4 sm:px-6 lg:px-8 pt-20 pb-16">
-        <div className="max-w-7xl mx-auto">
+      {/* ── Main content ─────────────────────────────────────── */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen flex flex-col justify-center py-20">
 
-          {/* Hero Grid */}
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center min-h-screen">
+          {/* Two-column hero layout */}
+          <div className="grid lg:grid-cols-2 gap-10 items-center">
 
-            {/* Left Content */}
-            <div className="space-y-6 lg:space-y-8 text-center lg:text-left order-2 lg:order-1">
+            {/* Left: copy */}
+            <div className="space-y-7 text-center lg:text-left animate-fadeInUp">
 
-              {/* Brand Badge */}
-              <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/20">
-                <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
-                <span className="text-white/90 text-sm font-medium tracking-wider">
-                  PREMIUM QUALITY
+              {/* Badge */}
+              <div className="inline-flex items-center gap-2.5 bg-[#41BCF5]/15 border border-[#41BCF5]/30
+                              backdrop-blur-sm px-4 py-2 rounded-full">
+                <span className="w-2 h-2 bg-[#41BCF5] rounded-full animate-pulse" />
+                <span className="text-[#41BCF5] text-xs font-bold tracking-widest uppercase">
+                  Premium Quality — Mumbai, India
                 </span>
               </div>
 
-              {/* Company Name */}
-              <div className="space-y-1">
-                <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight">
-                  S.A.G ENGINEERING
-                </h3>
-                <div className="w-20 h-1 bg-gradient-to-r from-blue-400 to-cyan-400 mx-auto lg:mx-0 rounded-full"></div>
-              </div>
-
-              {/* Main Heading */}
-              <div className="space-y-4">
-                <p className="text-blue-300 text-base font-medium">
-                  Manufacturers, Exporters & Suppliers of
+              {/* Heading */}
+              <div>
+                <p className="text-[#41BCF5] text-sm font-semibold uppercase tracking-widest mb-3">
+                  Manufacturers · Exporters · Suppliers
                 </p>
-                <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight">
-                  Commercial
-                  <span className="block bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-                    Kitchen
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-[1.08]">
+                  S.A.G <br className="hidden lg:block" />
+                  <span className="bg-gradient-to-r from-[#41BCF5] to-[#2D7C3C] bg-clip-text text-transparent">
+                    Engineering
                   </span>
-                  <span className="block">Equipments</span>
+                  <br />Products
                 </h1>
+                <div className="w-16 h-1 bg-gradient-to-r from-[#41BCF5] to-[#2D7C3C]
+                                mt-4 rounded-full mx-auto lg:mx-0" />
               </div>
 
-
-              {/* Description */}
-              <p className="text-xl text-gray-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
-                Premium quality stainless steel kitchen solutions designed for restaurants,
-                hotels, and commercial food service operations worldwide.
+              {/* Sub-copy */}
+              <p className="text-gray-300 text-lg leading-relaxed max-w-lg mx-auto lg:mx-0">
+                Commercial kitchen equipment, galley systems &amp; stainless steel solutions
+                engineered for restaurants, hotels, hospitals, and food service operations.
               </p>
 
-              {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-6">
-               <Link href="/products/All">
-      <button className="group relative px-8 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-xl shadow-xl hover:shadow-2xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105">
-        <span className="flex items-center justify-center">
-          Explore Products
-          <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-        </span>
-        <div className="absolute inset-0 rounded-xl bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-      </button>
-    </Link>
-
-    <Link href="/contact">
-                <button className="group px-8 py-4 border-2 border-blue-400/50 text-blue-300 font-semibold rounded-xl hover:bg-blue-400/10 hover:border-blue-400 hover:text-white transition-all duration-300">
-                  <span className="flex items-center justify-center">
-                    Get Quote
-                    <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                  </span>
-                </button>
-               </Link>
+              {/* CTAs */}
+              <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start pt-2">
+                <Link href="/products/All">
+                  <button className="group px-7 py-3.5 bg-[#41BCF5] hover:bg-white text-white
+                                     hover:text-[#0B1A35] font-bold rounded-xl shadow-lg
+                                     hover:shadow-[#41BCF5]/30 hover:shadow-2xl
+                                     transition-all duration-300 flex items-center gap-2">
+                    Explore Products
+                    <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                  </button>
+                </Link>
+                <Link href="/contact">
+                  <button className="group px-7 py-3.5 border-2 border-white/30 hover:border-[#41BCF5]
+                                     text-white font-bold rounded-xl
+                                     hover:bg-[#41BCF5]/10 transition-all duration-300
+                                     flex items-center gap-2">
+                    Get a Quote
+                    <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                  </button>
+                </Link>
               </div>
 
-              {/* Image Navigation Dots */}
-              {!loading && backgroundImages.length > 0 && (
-                <div className="flex space-x-3 justify-center lg:justify-start pt-4">
-                  {backgroundImages.map((_, index) => (
+              {/* Carousel dots */}
+              {!loading && backgroundImages.length > 1 && (
+                <div className="flex gap-2 justify-center lg:justify-start pt-2">
+                  {backgroundImages.map((_, idx) => (
                     <button
-                      key={index}
-                      onClick={() => setCurrentImageIndex(index)}
-                      className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentImageIndex
-                          ? 'bg-blue-400 scale-125'
-                          : 'bg-white/30 hover:bg-white/50'
-                        }`}
+                      key={idx}
+                      onClick={() => setCurrentImageIndex(idx)}
+                      aria-label={`Image ${idx + 1}`}
+                      className={`rounded-full transition-all duration-300 ${
+                        idx === currentImageIndex
+                          ? 'w-7 h-2.5 bg-[#41BCF5]'
+                          : 'w-2.5 h-2.5 bg-white/30 hover:bg-white/50'
+                      }`}
                     />
                   ))}
                 </div>
               )}
             </div>
 
-            {/* Right Image Section */}
-            <div className="relative order-1 lg:order-2">
+            {/* Right: Image showcase */}
+            <div className="relative hidden lg:block">
+              {/* Glow ring */}
+              <div className="absolute -inset-3 bg-gradient-to-tr from-[#41BCF5]/20 to-[#2D7C3C]/20
+                              rounded-3xl blur-xl" />
+              {/* Frame */}
+              <div className="relative bg-white/5 backdrop-blur-md rounded-2xl p-2
+                              border border-white/10 shadow-2xl">
+                <div className="overflow-hidden rounded-xl h-[520px] bg-gray-900">
+                  {loading ? (
+                    <div className="w-full h-full bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800 animate-pulse" />
+                  ) : (
+                    backgroundImages.map((img, idx) => (
+                      <img
+                        key={idx}
+                        src={img}
+                        alt={`SAG Engineering Product ${idx + 1}`}
+                        className={`absolute inset-0 w-full h-full object-cover
+                                    transition-all duration-1000 ${
+                          idx === currentImageIndex
+                            ? 'opacity-100 scale-[1.02]'
+                            : 'opacity-0 scale-[1.05]'
+                        }`}
+                      />
+                    ))
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/25 to-transparent" />
+                </div>
+              </div>
 
-              {/* Main Image Container */}
-              <div className="relative group">
-
-                {/* Glowing Border Effect */}
-                <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-500 rounded-3xl blur opacity-30 group-hover:opacity-50 transition-opacity animate-pulse"></div>
-
-                {/* Image Container */}
-               <div className="relative bg-white/5 backdrop-blur-xl rounded-2xl p-2 border border-white/10">
-  <div className="relative overflow-hidden rounded-xl h-[200px] sm:h-[500px] lg:h-[600px]">
-    {loading ? (
-      // Loading skeleton
-      <div className="absolute inset-0 bg-gradient-to-r from-slate-700 via-slate-600 to-slate-700 animate-pulse"></div>
-    ) : (
-      backgroundImages.map((image, index) => (
-        <img
-          key={index}
-          src={image}
-          alt={`Commercial Kitchen Equipment ${index + 1}`}
-          className={`absolute inset-0 w-full h-full object-cover transition-all duration-1000 ${
-            index === currentImageIndex
-              ? 'opacity-100 scale-105'   // active image slightly zoomed in
-              : 'opacity-0 scale-115'     // inactive image hidden + zoomed
-          }`}
-        />
-      ))
-    )}
-
-    {/* Image Overlay */}
-    <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
-
-    {/* Play Button Overlay */}
-    {!loading && (
-      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-        
-      </div>
-    )}
-  </div>
-</div>
-
-
-                {/* Floating Badge */}
-                <div className="absolute -bottom-4 left-4 right-4">
-                  <div className="bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl p-4 shadow-2xl border border-white/10">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-white font-semibold text-sm sm:text-base">
-                          Revitalize Commercial Kitchen
-                        </p>
-                        <p className="text-blue-100 text-xs sm:text-sm">
-                          Premium Solutions
-                        </p>
-                      </div>
-                      <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-                        <Target className="w-6 h-6 text-white" />
-                      </div>
-                    </div>
+              {/* Floating info card */}
+              <div className="absolute -bottom-5 left-4 right-4
+                              bg-gradient-to-r from-[#41BCF5] to-[#2D7C3C]
+                              rounded-xl p-4 shadow-xl border border-white/10">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-white font-bold text-sm">Revitalize Your Commercial Kitchen</p>
+                    <p className="text-white/70 text-xs">ISO-grade stainless steel solutions</p>
+                  </div>
+                  <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+                    <Target className="w-5 h-5 text-white" />
                   </div>
                 </div>
-
-                {/* Decorative Elements */}
-                <div className="absolute -top-8 -right-8 w-16 h-16 bg-gradient-to-br from-blue-400 to-cyan-400 rounded-full opacity-20 animate-bounce"></div>
-                <div className="absolute -bottom-6 -left-6 w-12 h-12 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-full opacity-30 animate-pulse"></div>
               </div>
             </div>
           </div>
 
-          {/* Stats Section */}
-          <div className="mt-16 lg:mt-24">
-            <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 lg:p-8 border border-white/10 shadow-2xl">
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-
-                <div className="text-center group hover:scale-105 transition-transform duration-300">
-                  <div className="flex items-center justify-center mb-3">
-                    <div className="p-3 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full shadow-lg group-hover:shadow-xl transition-shadow">
-                      <Award className="w-6 h-6 text-white" />
-                    </div>
+          {/* ── Stats band ──────────────────────────────────────── */}
+          <div className="mt-20 lg:mt-28">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              {STATS.map(({ icon: Icon, value, label }) => (
+                <div key={label}
+                  className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl
+                             px-4 py-5 text-center hover:bg-white/10 hover:border-[#41BCF5]/30
+                             transition-all duration-300 group">
+                  <div className="w-10 h-10 bg-gradient-to-br from-[#41BCF5] to-[#2D7C3C]
+                                  rounded-xl flex items-center justify-center mx-auto mb-3
+                                  group-hover:scale-110 transition-transform duration-300">
+                    <Icon className="w-5 h-5 text-white" />
                   </div>
-                  <div className="text-3xl lg:text-4xl font-bold text-white mb-1">15+</div>
-                  <div className="text-gray-300 text-sm font-medium">Years Experience</div>
+                  <div className="text-3xl font-black text-white mb-0.5">{value}</div>
+                  <div className="text-gray-400 text-xs font-medium uppercase tracking-wider">{label}</div>
                 </div>
-
-                <div className="text-center group hover:scale-105 transition-transform duration-300">
-                  <div className="flex items-center justify-center mb-3">
-                    <div className="p-3 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full shadow-lg group-hover:shadow-xl transition-shadow">
-                      <Users className="w-6 h-6 text-white" />
-                    </div>
-                  </div>
-                  <div className="text-3xl lg:text-4xl font-bold text-white mb-1">500+</div>
-                  <div className="text-gray-300 text-sm font-medium">Happy Clients</div>
-                </div>
-
-                <div className="text-center group hover:scale-105 transition-transform duration-300">
-                  <div className="flex items-center justify-center mb-3">
-                    <div className="flex space-x-1">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <Star
-                          key={star}
-                          className="w-4 h-4 fill-current text-yellow-400"
-                        />
-                      ))}
-                    </div>
-                  </div>
-                  <div className="text-3xl lg:text-4xl font-bold text-white mb-1">5.0</div>
-                  <div className="text-gray-300 text-sm font-medium">Rating</div>
-                </div>
-
-                <div className="text-center group hover:scale-105 transition-transform duration-300">
-                  <div className="flex items-center justify-center mb-3">
-                    <div className="p-3 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full shadow-lg group-hover:shadow-xl transition-shadow">
-                      <Target className="w-6 h-6 text-white" />
-                    </div>
-                  </div>
-                  <div className="text-3xl lg:text-4xl font-bold text-white mb-1">24/7</div>
-                  <div className="text-gray-300 text-sm font-medium">Support</div>
-                </div>
-
-              </div>
+              ))}
             </div>
           </div>
         </div>
       </div>
-
-      {/* Bottom Wave */}
-      <div className="absolute bottom-0 left-0 right-0">
-        <svg className="w-full h-24 text-white/5" viewBox="0 0 1200 120" preserveAspectRatio="none">
-          <path d="M0,60 C150,30 350,90 600,60 C850,30 1050,90 1200,60 L1200,120 L0,120 Z" fill="currentColor"></path>
-        </svg>
-      </div>
-
     </section>
   );
 }

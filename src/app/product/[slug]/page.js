@@ -1,388 +1,520 @@
-"use client"
+"use client";
 import React, { useState } from 'react';
-import { Award, Shield, Truck,  Info, Zap, Settings, Users,  X, ChevronRight } from 'lucide-react';
+import {
+  Award, Shield, Truck, Info, Zap, Settings, Users,
+  X, ChevronRight, Phone, Mail, CheckCircle,
+  ArrowLeft, Package, Loader2,
+} from 'lucide-react';
 import { useParams } from 'next/navigation';
+import Link from 'next/link';
+
+/* ── Static benefits (always shown) ────────────────────────────── */
+const BENEFITS = [
+  { icon: Shield,   title: 'Hygiene & Safety',    desc: 'Food-grade stainless steel with flame protection.' },
+  { icon: Settings, title: 'Custom Engineering',  desc: 'Tailored to your kitchen layout and workflow.'     },
+  { icon: Award,    title: 'Durability',           desc: 'Heavy-duty build for long service life.'           },
+  { icon: Zap,      title: 'High Performance',     desc: 'Efficient design delivers fast, even results.'     },
+];
+
+function InputField({ label, name, type = 'text', value, onChange, placeholder, required }) {
+  return (
+    <div>
+      <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+        {label}{required && <span className="text-red-500 ml-0.5">*</span>}
+      </label>
+      <input
+        type={type} name={name} value={value} onChange={onChange}
+        placeholder={placeholder} required={required}
+        className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm
+                   text-gray-900 placeholder-gray-400 bg-gray-50
+                   focus:outline-none focus:ring-2 focus:ring-[#41BCF5]/50
+                   focus:border-[#41BCF5] focus:bg-white transition-all"
+      />
+    </div>
+  );
+}
 
 function ProductDetailsPage() {
   const params = useParams();
-  const slug = params?.slug || 'not-found';
+  const slug   = params?.slug || 'not-found';
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  /* ── State ──────────────────────────────────────────────────── */
+  const [activeTab,    setActiveTab   ] = useState('overview');
+  const [isModalOpen,  setIsModalOpen ] = useState(false);
+  const [submitted,    setSubmitted   ] = useState(false);
+  const [product,      setProduct     ] = useState(null);
+  const [loading,      setLoading     ] = useState(true);
+  const [error,        setError       ] = useState(null);
+
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    file: null,
-    description: ""
+    name: '', email: '', phone: '', description: '',
   });
 
+  /* ── Fetch ──────────────────────────────────────────────────── */
+  React.useEffect(() => {
+    if (!slug) return;
+    setLoading(true); setError(null);
+    fetch(`/api/getbyslugproduct/${slug}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success && data.data) {
+          setProduct({
+            ...data.data,
+            shortDescription: data.data.short_description,
+            longDescription:  data.data.long_description,
+            images:           data.data.images         || [],
+            features:         data.data.features       || [],
+            applications:     data.data.applications   || [],
+            specifications:   data.data.specifications || {},
+            variants:         data.data.variants       || [],
+          });
+        } else { setProduct(null); }
+        setLoading(false);
+      })
+      .catch(() => { setError('Failed to fetch product'); setLoading(false); });
+  }, [slug]);
+
+  /* ── Helpers ─────────────────────────────────────────────────── */
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: files ? files[0] : value,
-    }));
+    setFormData(prev => ({ ...prev, [name]: files ? files[0] : value }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(formData);
-    alert("Inquiry submitted!");
-    setIsModalOpen(false);
+    setSubmitted(true);
+    setTimeout(() => {
+      setSubmitted(false);
+      setIsModalOpen(false);
+      setFormData({ name: '', email: '', phone: '', description: '' });
+    }, 2500);
   };
 
-  const [activeTab, setActiveTab] = useState('overview');
-
-  // Fetch product by slug from API
-  const [product, setProduct] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  React.useEffect(() => {
-    if (!slug) return;
-    setLoading(true);
-    setError(null);
-    fetch(`/api/getbyslugproduct/${slug}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success && data.data) {
-          setProduct({
-            ...data.data,
-            name: data.data.name,
-            slug: data.data.slug,
-            image: data.data.image,
-            category: data.data.category,
-            shortDescription: data.data.short_description,
-            longDescription: data.data.long_description,
-            images: data.data.images || [],
-            features: data.data.features || [],
-            applications: data.data.applications || [],
-            specifications: data.data.specifications || {},
-            variants: data.data.variants || [],
-            benefits: [
-              {
-                icon: Shield,
-                title: 'Hygiene & Safety',
-                description: 'Food-grade stainless steel surfaces with flame protection.'
-              },
-              {
-                icon: Settings,
-                title: 'Custom Engineering',
-                description: 'Designed to match your kitchen layout and workflow.'
-              },
-              {
-                icon: Award,
-                title: 'Durability',
-                description: 'Heavy-duty construction ensures long service life.'
-              },
-              {
-                icon: Zap,
-                title: 'High Performance',
-                description: 'Efficient burners deliver fast, even heating.'
-              }
-            ]
-          });
-        } else {
-          setProduct(null);
-        }
-        setLoading(false);
-      })
-      .catch(() => {
-        setError('Failed to fetch product');
-        setLoading(false);
-      });
-  }, [slug]);
-
-  // Tabs Configuration: Removed "Applications & Packing"
-  const tabs = [
-    { id: 'overview', label: 'Description' },
-    { id: 'specifications', label: 'Specification' }
-  ];
-
-  // Removed unused handleBackClick function
-
   const getImageSrc = (image) => {
-    if (!image) return "https://placehold.co/600x400?text=No+Image";
-    if (image.startsWith("/9j/") || image.length > 200) {
-      return image.startsWith("data:") ? image : `data:image/jpeg;base64,${image}`;
-    }
-    if (image.startsWith("http") || image.startsWith("/")) {
-      return image;
-    }
+    if (!image) return 'https://placehold.co/600x400?text=No+Image';
+    if (image.startsWith('data:') || image.startsWith('http') || image.startsWith('/')) return image;
     return `data:image/jpeg;base64,${image}`;
   };
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="w-16 h-16 border-4 border-blue-200 border-t-blue-900 rounded-full animate-spin"></div></div>;
-  if (error || !product) return <div className="min-h-screen flex items-center justify-center">Product not found</div>;
+  const tabs = [
+    { id: 'overview',       label: 'Description',    icon: Info     },
+    { id: 'specifications', label: 'Specifications', icon: Settings },
+  ];
 
+  /* ── Loading / Error states ─────────────────────────────────── */
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center pt-28 bg-[#F4F6F8]">
+      <div className="text-center">
+        <Loader2 className="w-12 h-12 text-[#41BCF5] animate-spin mx-auto mb-4" />
+        <p className="text-gray-500 font-medium">Loading product…</p>
+      </div>
+    </div>
+  );
+
+  if (error || !product) return (
+    <div className="min-h-screen flex flex-col items-center justify-center pt-28 bg-[#F4F6F8]">
+      <div className="w-20 h-20 bg-red-50 rounded-2xl flex items-center justify-center mb-4">
+        <Package size={36} className="text-red-400" />
+      </div>
+      <h2 className="text-xl font-bold text-gray-800 mb-2">Product not found</h2>
+      <p className="text-gray-500 mb-6">The product you are looking for does not exist.</p>
+      <Link href="/products/All">
+        <button className="flex items-center gap-2 bg-[#41BCF5] text-white px-6 py-2.5
+                           rounded-xl font-bold text-sm hover:bg-[#0B1A35] transition-colors">
+          <ArrowLeft size={16} /> Browse All Products
+        </button>
+      </Link>
+    </div>
+  );
+
+  /* ── Page ───────────────────────────────────────────────────── */
   return (
-    <div className="min-h-screen bg-white mt-40 font-sans text-gray-800">
-      
-      {/* 1. TOP SECTION: Clean Split (Image Left | Intro Right) */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
-          
-          {/* LEFT: Main Image + Thumbnails */}
-          <div className="lg:col-span-5 space-y-4">
-          {/* <div className="border border-gray-200 p-2 rounded-lg overflow-hidden"> */}
-  <img
-    src={getImageSrc(product.image)}
-    alt={product.name}
-    className="
-      w-full 
-      h-80 lg:h-96 
-      object-contain 
-      bg-gray-50 
-      rounded-md
-      transition-transform 
-      duration-500 
-      ease-in-out
-      hover:scale-110
-    "
-  />
-{/* </div> */}
+    <div className="min-h-screen bg-[#F4F6F8] pt-36">
 
-            {/* Thumbnails Placeholder */}
-          
-          </div>
-
-          {/* RIGHT: Title & Short Description (Clean Text Area) */}
-          <div className="lg:col-span-7 flex flex-col justify-start">
-             {/* Category Tag */}
-             <div className="mb-2">
-                {/* <span className="text-sm font-bold text-black uppercase tracking-wider">
-                    {product.category}
-                </span> */}
-             </div>
-
-            <h1 className="text-3xl lg:text-4xl font-extrabold text-indigo-950 mb-6 border-b-2 border-indigo-100 pb-4 inline-block">
-              {product.name}
-            </h1>
-            
-            <div className="prose prose-lg text-gray-600 mb-8 leading-relaxed">
-              <p>{product.shortDescription}</p>
-
-               <p className="mt-4 text-sm text-gray-500">
-               
-                <span className="font-bold text-black">Product Category:</span>   {product.category} 
-                
-              </p>
-              <p className="mt-4 text-sm text-gray-500">
-                <span className="font-bold text-black ml-3">Availability:</span> In Stock
-               
-                
-              </p>
-              
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex flex-wrap gap-4 mt-auto">
-              <button onClick={() => setIsModalOpen(true)} className="flex-1 bg-[#41BCF5] text-white px-8 py-3 rounded hover:bg-indigo-800 transition font-bold shadow-md">
-                Send Inquiry
-              </button>
-              <a href="tel:+919892084449" className="flex-1 border-2 border-[#41BCF5] text-[#41BCF5] px-8 py-3 rounded hover:bg-indigo-50 transition font-bold text-center">
-                Request Quote
-              </a>
-            </div>
-          </div>
-
+      {/* ── Breadcrumb strip ────────────────────────────────────── */}
+      <div className="bg-white border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+          <nav className="flex items-center gap-2 text-sm text-gray-500">
+            <Link href="/" className="hover:text-[#41BCF5] transition-colors">Home</Link>
+            <ChevronRight size={14} className="text-gray-300" />
+            <Link href="/products/All" className="hover:text-[#41BCF5] transition-colors">Products</Link>
+            {product.category && (
+              <>
+                <ChevronRight size={14} className="text-gray-300" />
+                <Link
+                  href={`/products/${product.category?.toLowerCase().replace(/\s+/g, '-')}`}
+                  className="hover:text-[#41BCF5] transition-colors">
+                  {product.category}
+                </Link>
+              </>
+            )}
+            <ChevronRight size={14} className="text-gray-300" />
+            <span className="text-[#0B1A35] font-medium truncate max-w-48">{product.name}</span>
+          </nav>
         </div>
       </div>
 
-      {/* 2. TABS BAR (Reduced to 2 Tabs) */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
-        <div className="flex flex-wrap border-b-4 border-[#41BCF5]">
-          {tabs.map((tab) => (
+      {/* ── Top split: image + info ──────────────────────────────── */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid lg:grid-cols-12 gap-8">
+
+          {/* LEFT: Image ──────────────────────────────────────────── */}
+          <div className="lg:col-span-5">
+            <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100
+                            overflow-hidden group">
+              <img
+                src={getImageSrc(product.image)}
+                alt={product.name}
+                className="w-full h-72 lg:h-[380px] object-contain
+                           group-hover:scale-105 transition-transform duration-500"
+              />
+            </div>
+            {/* In-stock badge under image */}
+            <div className="mt-3 flex items-center gap-2 text-sm text-green-700
+                            bg-green-50 border border-green-100 rounded-xl px-4 py-2.5">
+              <CheckCircle size={15} />
+              <span className="font-semibold">In Stock</span>
+              <span className="text-gray-400 mx-1">·</span>
+              <span className="text-gray-600">Ready to ship</span>
+            </div>
+          </div>
+
+          {/* RIGHT: Info ──────────────────────────────────────────── */}
+          <div className="lg:col-span-7 flex flex-col gap-5">
+
+            {/* Category + title */}
+            {product.category && (
+              <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase
+                               tracking-widest text-[#41BCF5] bg-[#41BCF5]/10 px-3 py-1
+                               rounded-full self-start">
+                <Package size={11} /> {product.category}
+              </span>
+            )}
+
+            <div>
+              <h1 className="text-3xl lg:text-4xl font-black text-[#0B1A35] leading-tight mb-3">
+                {product.name}
+              </h1>
+              <div className="w-14 h-1 bg-gradient-to-r from-[#41BCF5] to-[#2D7C3C]
+                              rounded-full" />
+            </div>
+
+            {/* Short description */}
+            {product.shortDescription && (
+              <p className="text-gray-600 leading-relaxed text-base">
+                {product.shortDescription}
+              </p>
+            )}
+
+            {/* Quick feature pills (if present) */}
+            {product.features?.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {product.features.slice(0, 6).map((f, i) => (
+                  <span key={i} className="text-xs font-medium text-gray-600 bg-gray-100
+                                           px-3 py-1.5 rounded-lg border border-gray-200">
+                    ✓ {f}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {/* CTA buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 mt-auto pt-2">
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="flex-1 bg-[#41BCF5] hover:bg-[#0B1A35] text-white px-7 py-3.5
+                           rounded-xl font-bold shadow-lg hover:shadow-xl
+                           transition-all duration-300 flex items-center justify-center gap-2 group">
+                <Mail size={16} className="group-hover:scale-110 transition-transform" />
+                Send Inquiry
+              </button>
+              <a href="tel:+919892084449" className="flex-1">
+                <button className="w-full border-2 border-[#0B1A35] text-[#0B1A35]
+                                   hover:bg-[#0B1A35] hover:text-white px-7 py-3.5
+                                   rounded-xl font-bold transition-all duration-300
+                                   flex items-center justify-center gap-2 group">
+                  <Phone size={16} /> Call for Quote
+                </button>
+              </a>
+            </div>
+
+            {/* Trust row */}
+            <div className="flex items-center gap-4 pt-1 flex-wrap">
+              {[
+                { icon: Shield, text: 'Quality Assured' },
+                { icon: Truck,  text: 'PAN India Delivery' },
+                { icon: Award,  text: 'ISO Standard' },
+              ].map(({ icon: Icon, text }) => (
+                <div key={text} className="flex items-center gap-1.5 text-gray-500 text-xs">
+                  <Icon size={13} className="text-[#41BCF5]" />
+                  <span>{text}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Tabs ────────────────────────────────────────────────── */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex gap-1 bg-white rounded-2xl p-1.5 shadow-sm
+                        border border-gray-100 w-fit">
+          {tabs.map(({ id, label, icon: Icon }) => (
             <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-8 py-3 font-bold text-sm md:text-base tracking-wide uppercase transition-colors
-                ${activeTab === tab.id 
-                  ? 'bg-[#41BCF5] text-white' 
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-            >
-              {tab.label}
+              key={id}
+              onClick={() => setActiveTab(id)}
+              className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm
+                          font-bold transition-all duration-200 ${
+                activeTab === id
+                  ? 'bg-[#0B1A35] text-white shadow-md'
+                  : 'text-gray-500 hover:text-[#0B1A35] hover:bg-gray-50'
+              }`}>
+              <Icon size={14} /> {label}
             </button>
           ))}
         </div>
       </div>
 
-      {/* 3. TAB CONTENT AREA */}
+      {/* ── Tab content ─────────────────────────────────────────── */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mb-16">
-        
-        {/* TAB: DESCRIPTION (Combined Overview + Applications + Packing) */}
-        {activeTab === 'overview' && (
-          <div className="space-y-8 animate-fadeIn">
-            
-            {/* -- Part A: Main Text & Features -- */}
-            <div>
-              <h3 className="text-xl font-bold text-[#41BCF5] mb-4 flex items-center">
-                <Info className="mr-2" size={20}/> Product Description
-              </h3>
-              <p className="text-gray-700 leading-relaxed mb-6">
-                {product.longDescription || product.shortDescription}
-                <br /><br />
-                Our {product.name} is engineered for superior performance in demanding environments. 
-                Below are the key characteristics that make this product the preferred choice for professionals.
-              </p>
 
-              {/* Key Features List */}
-              <div className="bg-gray-50 p-6 rounded-lg border-l-4 border-[#41BCF5] mb-8">
-                <h4 className="font-bold text-gray-900 mb-4">Key Features:</h4>
-                <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        {/* DESCRIPTION tab */}
+        {activeTab === 'overview' && (
+          <div className="space-y-8">
+
+            {/* Long description */}
+            <div className="bg-white rounded-2xl p-7 shadow-sm border border-gray-100">
+              <h3 className="text-lg font-black text-[#0B1A35] mb-4 flex items-center gap-2">
+                <Info size={18} className="text-[#41BCF5]" /> Product Description
+              </h3>
+              <p className="text-gray-600 leading-relaxed">
+                {product.longDescription || product.shortDescription}
+              </p>
+            </div>
+
+            {/* Features */}
+            {product.features?.length > 0 && (
+              <div className="bg-white rounded-2xl p-7 shadow-sm border border-gray-100">
+                <h3 className="text-lg font-black text-[#0B1A35] mb-5">Key Features</h3>
+                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {product.features.map((feature, idx) => (
-                    <li key={idx} className="flex items-start text-sm text-gray-700">
-                      <ChevronRight className="text-indigo-500 mt-0.5 mr-2 flex-shrink-0" size={16} />
-                      {feature}
+                    <li key={idx}
+                      className="flex items-start gap-3 p-3 bg-[#F4F6F8] rounded-xl">
+                      <ChevronRight size={15}
+                        className="text-[#41BCF5] mt-0.5 flex-shrink-0" />
+                      <span className="text-sm text-gray-700">{feature}</span>
                     </li>
                   ))}
                 </ul>
               </div>
-            </div>
+            )}
 
-            {/* -- Part B: Applications (Moved from separate tab) -- */}
-            <div>
-               <h3 className="text-xl font-bold text-[#41BCF5] mb-6 flex items-center border-t border-gray-200 pt-8">
-                  <Users className="mr-2" size={20}/> Applications & Usage
-              </h3>
-              
-              <div className="prose prose-indigo max-w-none mb-8">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {product.applications.map((app, index) => (
-                          <div key={index} className="flex">
-                              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#41BCF5] text-white font-bold text-sm mr-4 flex-shrink-0">
-                                  {index + 1}
-                              </span>
-                              <div>
-                                  <h4 className="text-lg font-bold text-gray-900 mb-1">{app}</h4>
-                                  <p className="text-sm text-gray-600">
-                                      Optimized for {app.toLowerCase()} environments.
-                                  </p>
-                              </div>
-                          </div>
-                      ))}
-                  </div>
+            {/* Applications */}
+            {product.applications?.length > 0 && (
+              <div className="bg-white rounded-2xl p-7 shadow-sm border border-gray-100">
+                <h3 className="text-lg font-black text-[#0B1A35] mb-5 flex items-center gap-2">
+                  <Users size={18} className="text-[#41BCF5]" /> Applications
+                </h3>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {product.applications.map((app, idx) => (
+                    <div key={idx} className="flex items-start gap-3">
+                      <span className="w-7 h-7 rounded-lg bg-[#41BCF5] text-white text-xs
+                                       font-bold flex items-center justify-center flex-shrink-0">
+                        {idx + 1}
+                      </span>
+                      <div>
+                        <p className="font-semibold text-gray-800 text-sm">{app}</p>
+                        <p className="text-xs text-gray-500 mt-0.5">
+                          Optimised for {app.toLowerCase()} environments.
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Packing & Delivery */}
+            <div className="bg-gradient-to-r from-[#F4F6F8] to-blue-50 rounded-2xl p-6
+                            border border-blue-100 flex items-start gap-4">
+              <div className="w-10 h-10 bg-[#41BCF5] rounded-xl flex items-center
+                              justify-center flex-shrink-0">
+                <Truck size={18} className="text-white" />
+              </div>
+              <div>
+                <h4 className="font-bold text-[#0B1A35] mb-1">Packing &amp; Delivery</h4>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  Standard packing includes secure, impact-resistant crating.
+                  Custom export packing available on request.
+                  Lead time: 3–5 business days for standard models.
+                </p>
               </div>
             </div>
 
-            {/* -- Part C: Packing Info (Moved from separate tab) -- */}
-            <div className="bg-blue-50 p-6 rounded-lg border border-blue-100">
-                <h4 className="font-bold text-blue-900 mb-2 flex items-center">
-                    <Truck className="mr-2" size={18} /> Packing & Delivery
-                </h4>
-                <p className="text-sm text-blue-800">
-                    Standard packing includes secure, impact-resistant crating. 
-                    Custom packing options available for export. 
-                    Lead time: 3-5 business days for standard models.
-                </p>
-            </div>
-
-            {/* -- Part D: Benefits Grid -- */}
-            <div className="pt-8">
-                <h4 className="font-bold text-gray-900 mb-4">Why Choose This Product?</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {product.benefits.map((benefit, index) => {
-                    const Icon = benefit.icon;
-                    return (
-                    <div key={index} className="bg-white p-4 border border-gray-200 shadow-sm hover:shadow-md transition">
-                        <Icon className="text-[#41BCF5] mb-2" size={24} />
-                        <h5 className="font-bold text-sm mb-1">{benefit.title}</h5>
-                        <p className="text-xs text-gray-500">{benefit.description}</p>
+            {/* Benefits */}
+            <div>
+              <h3 className="text-lg font-black text-[#0B1A35] mb-5">
+                Why Choose This Product?
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {BENEFITS.map(({ icon: Icon, title, desc }) => (
+                  <div key={title}
+                    className="bg-white rounded-2xl p-5 border border-gray-100
+                               shadow-sm hover:shadow-md hover:-translate-y-1
+                               transition-all duration-300 group">
+                    <div className="w-11 h-11 bg-[#41BCF5]/10 rounded-xl flex items-center
+                                    justify-center mb-4 group-hover:bg-[#41BCF5]
+                                    transition-colors duration-300">
+                      <Icon size={20}
+                        className="text-[#41BCF5] group-hover:text-white transition-colors" />
                     </div>
-                    );
-                })}
-                </div>
+                    <h5 className="font-bold text-[#0B1A35] text-sm mb-1.5">{title}</h5>
+                    <p className="text-xs text-gray-500 leading-relaxed">{desc}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}
 
-        {/* TAB: SPECIFICATION */}
+        {/* SPECIFICATIONS tab */}
         {activeTab === 'specifications' && (
-          <div className="animate-fadeIn">
-            <h3 className="text-xl font-bold text-[#41BCF5] mb-6 flex items-center">
-                <Settings className="mr-2" size={20}/> Technical Specifications
-            </h3>
-            
-            <div className="overflow-hidden border border-gray-200 rounded-lg">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <tbody className="divide-y divide-gray-200 bg-white">
-                        {Object.entries(product.specifications).map(([key, value], idx) => (
-                            <tr key={idx} className={idx % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 w-1/3">{key}</td>
-                                <td className="px-6 py-4 text-sm text-gray-700">{value}</td>
-                            </tr>
-                        ))}
-                    </tbody>
+          <div className="space-y-8">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+              <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
+                <Settings size={17} className="text-[#41BCF5]" />
+                <h3 className="font-black text-[#0B1A35]">Technical Specifications</h3>
+              </div>
+              {Object.keys(product.specifications).length > 0 ? (
+                <table className="min-w-full divide-y divide-gray-100">
+                  <tbody className="divide-y divide-gray-100">
+                    {Object.entries(product.specifications).map(([key, value], idx) => (
+                      <tr key={idx}
+                        className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/60'}>
+                        <td className="px-6 py-3.5 text-sm font-bold text-[#0B1A35]
+                                       w-2/5 border-r border-gray-100">
+                          {key}
+                        </td>
+                        <td className="px-6 py-3.5 text-sm text-gray-600">{value}</td>
+                      </tr>
+                    ))}
+                  </tbody>
                 </table>
+              ) : (
+                <div className="text-center py-12 text-gray-400 text-sm">
+                  No specifications available for this product.
+                </div>
+              )}
             </div>
 
-            {/* Variants Table */}
-        {product.variants && product.variants.length > 0 && (
-  <div className="mt-8">
-    <h4 className="font-bold text-gray-900 mb-3">Available Models</h4>
-
-    <div className="overflow-x-auto border border-gray-200 rounded-lg">
-      <table className="min-w-full text-sm text-left text-gray-500">
-        {/* TABLE HEADER */}
-        <thead className="text-xs text-white uppercase bg-[#41BCF5]">
-          <tr>
-            {product.variants.map((variant, i) => (
-              <th key={i} className="px-6 py-3">
-                {variant.variant_key}
-              </th>
-            ))}
-          </tr>
-        </thead>
-
-        {/* TABLE BODY */}
-        <tbody>
-          {Array.from({
-            length: Math.max(
-              ...product.variants.map(v => v.values.length)
-            ),
-          }).map((_, rowIndex) => (
-            <tr
-              key={rowIndex}
-              className="bg-white border-b hover:bg-gray-50"
-            >
-              {product.variants.map((variant, colIndex) => (
-                <td
-                  key={colIndex}
-                  className="px-6 py-4 font-medium text-gray-900"
-                >
-                  {variant.values[rowIndex] || "-"}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  </div>
-)}
-
+            {/* Variants / Models */}
+            {product.variants?.length > 0 && (
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
+                  <Package size={17} className="text-[#41BCF5]" />
+                  <h3 className="font-black text-[#0B1A35]">Available Models</h3>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full text-sm">
+                    <thead className="bg-[#0B1A35] text-white">
+                      <tr>
+                        {product.variants.map((v, i) => (
+                          <th key={i} className="px-6 py-3 text-left text-xs font-bold
+                                                  uppercase tracking-wider">
+                            {v.variant_key}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {Array.from({
+                        length: Math.max(...product.variants.map(v => v.values.length))
+                      }).map((_, rowIdx) => (
+                        <tr key={rowIdx}
+                          className={rowIdx % 2 === 0 ? 'bg-white' : 'bg-gray-50/60'}>
+                          {product.variants.map((v, colIdx) => (
+                            <td key={colIdx}
+                              className="px-6 py-3 text-gray-700 font-medium">
+                              {v.values[rowIdx] || '–'}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
           </div>
         )}
-
       </div>
 
-      {/* MODAL */}
+      {/* ── Inquiry Modal ────────────────────────────────────────── */}
       {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/60 z-50 backdrop-blur-sm">
-          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md relative">
-            <button onClick={() => setIsModalOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-red-500">
-              <X size={24} />
-            </button>
-            <h2 className="text-2xl font-bold mb-1 text-[#41BCF5]">Send Inquiry</h2>
-            <p className="text-sm text-gray-500 mb-6"> We&apos;ll get back to you within 24 hours.</p>
-            
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <input type="text" name="name" placeholder="Your Name" value={formData.name} onChange={handleChange} className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none" required />
-              <input type="email" name="email" placeholder="Your Email" value={formData.email} onChange={handleChange} className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none" required />
-              <input type="tel" name="phone" placeholder="Mobile Number" value={formData.phone} onChange={handleChange} className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none" required />
-              <textarea name="description" placeholder="Message / Specific Requirements" value={formData.description} onChange={handleChange} className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none h-24" />
-              <button type="submit" className="w-full bg-[#41BCF5] text-white py-3 rounded-lg font-bold hover:bg-indigo-800 transition shadow-lg">Submit Inquiry</button>
-            </form>
+        <div className="fixed inset-0 z-50 flex items-center justify-center
+                        bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md
+                          relative overflow-hidden animate-fadeInUp">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-[#0B1A35] to-[#1a3158] px-6 py-5">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="absolute top-4 right-4 w-8 h-8 bg-white/10 hover:bg-white/20
+                           rounded-lg flex items-center justify-center
+                           text-white transition-colors">
+                <X size={18} />
+              </button>
+              <h2 className="text-xl font-black text-white">Send Inquiry</h2>
+              <p className="text-white/60 text-sm mt-0.5">
+                For: <span className="text-white/90">{product.name}</span>
+              </p>
+            </div>
+
+            <div className="p-6">
+              {submitted ? (
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 bg-green-50 rounded-2xl flex items-center
+                                  justify-center mx-auto mb-4">
+                    <CheckCircle size={32} className="text-green-500" />
+                  </div>
+                  <h3 className="text-lg font-black text-[#0B1A35] mb-2">
+                    Inquiry Submitted!
+                  </h3>
+                  <p className="text-gray-500 text-sm">
+                    We&apos;ll get back to you within 24 hours.
+                  </p>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <InputField label="Your Name"     name="name"        value={formData.name}        onChange={handleChange} placeholder="Rahul Sharma"       required />
+                  <InputField label="Email Address" name="email"       value={formData.email}       onChange={handleChange} placeholder="you@company.com" type="email" required />
+                  <InputField label="Phone Number"  name="phone"       value={formData.phone}       onChange={handleChange} placeholder="+91 98xxx xxxxx" type="tel"  required />
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                      Message / Requirements
+                    </label>
+                    <textarea
+                      name="description" value={formData.description} onChange={handleChange}
+                      placeholder="Quantity, size, customization needed…"
+                      rows={3}
+                      className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm
+                                 text-gray-900 placeholder-gray-400 bg-gray-50
+                                 focus:outline-none focus:ring-2 focus:ring-[#41BCF5]/50
+                                 focus:border-[#41BCF5] focus:bg-white transition-all resize-none"
+                    />
+                  </div>
+                  <button type="submit"
+                    className="w-full bg-[#41BCF5] hover:bg-[#0B1A35] text-white py-3
+                               rounded-xl font-bold shadow-lg transition-colors duration-300
+                               flex items-center justify-center gap-2">
+                    <Mail size={16} /> Submit Inquiry
+                  </button>
+                  <p className="text-xs text-center text-gray-400">
+                    We respond within 24 business hours
+                  </p>
+                </form>
+              )}
+            </div>
           </div>
         </div>
       )}

@@ -1,491 +1,445 @@
 "use client";
 import React, { useState } from 'react';
 import {
-    Phone, Mail, MapPin, Clock, Send,
-    Building, CheckCircle,
-    Globe, Smartphone, Navigation, Award
+  Phone, Mail, MapPin, Clock, Send,
+  Building, CheckCircle, Award, Globe,
+  ChevronDown, ChevronUp,
 } from 'lucide-react';
 
+/* ── Static data ──────────────────────────────────────────────── */
+const CONTACT_METHODS = [
+  {
+    icon:  Phone,
+    title: "Call Us",
+    lines: ["+91 98920 84449", "+91 90820 08085"],
+    note:  "Mon–Sat, 9 AM – 6 PM",
+    href:  "tel:+919892084449",
+    bg:    "bg-[#41BCF5]",
+  },
+  {
+    icon:  Mail,
+    title: "Email Us",
+    lines: ["sales@sagenginnering.in"],
+    note:  "Reply within 2 hours",
+    href:  "mailto:sales@sagenginnering.in",
+    bg:    "bg-[#2D7C3C]",
+  },
+  {
+    icon:  MapPin,
+    title: "Head Office",
+    lines: ["Ghatkopar West", "Mumbai – 400084"],
+    note:  "Maharashtra, India",
+    href:  "https://maps.google.com/?q=Asalpha+Ghatkopar+West+Mumbai",
+    bg:    "bg-[#0B1A35]",
+  },
+  {
+    icon:  Clock,
+    title: "Business Hours",
+    lines: ["Mon – Sat: 9 AM – 6 PM"],
+    note:  "Sunday: Closed",
+    href:  null,
+    bg:    "bg-orange-500",
+  },
+];
+
+const QUICK_STATS = [
+  { icon: Phone, label: "Avg. Response",      value: "< 2 hrs" },
+  { icon: Award, label: "Client Satisfaction", value: "98%"    },
+  { icon: Globe, label: "Years Experience",    value: "15+"    },
+  { icon: Building, label: "Projects Delivered", value: "800+" },
+];
+
+const FAQS = [
+  {
+    q: "What is your typical lead time for custom equipment?",
+    a: "Our standard lead time is 2–4 weeks depending on complexity. We'll provide an accurate timeline during the initial consultation.",
+  },
+  {
+    q: "Do you provide installation and maintenance services?",
+    a: "Yes. We offer complete installation services and ongoing maintenance support for all equipment. Our team ensures proper setup and optimal performance.",
+  },
+  {
+    q: "What quality certifications do your products carry?",
+    a: "All products meet industry standards for food-grade and medical-grade stainless steel. We maintain strict quality control and can provide documentation on request.",
+  },
+  {
+    q: "Can you manufacture based on our custom designs?",
+    a: "Absolutely. Share your drawings, specs, or requirements and our engineering team will build to your exact needs.",
+  },
+  {
+    q: "What is your warranty policy?",
+    a: "We provide a comprehensive 1–2 year warranty depending on the equipment, covering manufacturing defects.",
+  },
+];
+
+const PRODUCT_OPTIONS = [
+  "Cooking Equipments", "Bakery Equipments", "Galley Equipment",
+  "Hospital Equipment", "Fast Food Equipments", "Refrigeration",
+  "Washing Equipment", "Other",
+];
+
+/* ── Sub-components ────────────────────────────────────────────── */
+function Label({ children, required }) {
+  return (
+    <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+      {children}{required && <span className="text-red-500 ml-0.5">*</span>}
+    </label>
+  );
+}
+
+const inputCls = `w-full border border-gray-200 rounded-xl px-4 py-3 text-sm
+                  text-gray-900 placeholder-gray-400 bg-gray-50
+                  focus:outline-none focus:ring-2 focus:ring-[#41BCF5]/50
+                  focus:border-[#41BCF5] focus:bg-white transition-all`;
+
+function FaqItem({ q, a }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-start justify-between gap-4 px-6 py-5
+                   text-left hover:bg-gray-50 transition-colors">
+        <span className="font-bold text-[#0B1A35] text-sm leading-snug">{q}</span>
+        {open
+          ? <ChevronUp   size={18} className="text-[#41BCF5] flex-shrink-0 mt-0.5" />
+          : <ChevronDown size={18} className="text-gray-400  flex-shrink-0 mt-0.5" />}
+      </button>
+      {open && (
+        <div className="px-6 pb-5 text-sm text-gray-600 leading-relaxed
+                        border-t border-gray-100 pt-4">
+          {a}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ── Page ───────────────────────────────────────────────────────── */
 export default function ContactUsPage() {
-    const [formData, setFormData] = useState({
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: '',
-        company: '',
-        subject: '',
-        message: '',
-        productInterest: ''
-    });
-    const [isSubmitted, setIsSubmitted] = useState(false);
+  const [formData, setFormData] = useState({
+    firstName: '', lastName: '', email: '', phone: '',
+    company: '', subject: '', message: '', productInterest: '',
+  });
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
-   
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
-    };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setIsSubmitted(true);
+    setTimeout(() => {
+      setIsSubmitted(false);
+      setFormData({
+        firstName: '', lastName: '', email: '', phone: '',
+        company: '', subject: '', message: '', productInterest: '',
+      });
+    }, 3500);
+  };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        // Simulate form submission
-        setIsSubmitted(true);
-        setTimeout(() => {
-            setIsSubmitted(false);
-            setFormData({
-                firstName: '',
-                lastName: '',
-                email: '',
-                phone: '',
-                company: '',
-                subject: '',
-                message: '',
-                productInterest: ''
-            });
-        }, 3000);
-    };
+  return (
+    <div className="min-h-screen bg-[#F4F6F8]">
 
-    const contactMethods = [
-        {
-            icon: Phone,
-            title: "Call Us",
-            primary: "+91 8047631651",
-            secondary: "+91 8047631651",
-            description: "Speak directly with our team",
-            color: "from-blue-500 to-blue-600"
-        },
-        {
-            icon: Mail,
-            title: "Email Us",
-            primary: "sales@sagenginnering.in",
-            secondary: "sales@sagenginnering.in",
-            description: "Send us your requirements",
-            color: "from-orange-500 to-orange-600"
-        },
-        {
-            icon: MapPin,
-            title: "Visit Us",
-            primary: "Mumbai, Maharashtra",
-            secondary: "India - 400001",
-            description: "Our manufacturing facility",
-            color: "from-green-500 to-green-600"
-        },
-        {
-            icon: Clock,
-            title: "Business Hours",
-            primary: "Mon - Sat: 9:00 AM - 6:00 PM",
-            secondary: "Sunday: Closed",
-            description: "We're here to help",
-            color: "from-purple-500 to-purple-600"
-        }
-    ];
+      {/* ── Hero ─────────────────────────────────────────────────── */}
+      <div className="bg-gradient-to-r from-[#0B1A35] via-[#1a3158] to-[#0B1A35]
+                      pt-36 pb-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full
+                           bg-[#41BCF5]/20 border border-[#41BCF5]/30 text-[#41BCF5]
+                           text-xs font-bold uppercase tracking-widest mb-5">
+            <Mail size={12} /> Get in Touch
+          </span>
+          <h1 className="text-4xl lg:text-5xl font-black text-white mb-4">
+            Contact Us
+          </h1>
+          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+            Let&apos;s bring efficiency and innovation to your commercial kitchen.
+            Our team typically responds within 2 hours.
+          </p>
+        </div>
+      </div>
 
-    const officeDetails = [
-        {
-            icon: Building,
-            title: "Reach Us",
-            address: "S.a.g. Engineering Products G. No. 15, DK Market, Subhash Nagar, Jangleshwar Road, Asalpha Village, Ghatkoper West, Survey No. 23 Barve Nagar, Mumbai – 400084, Maharashtra, India",
-            phone: "+91 8047631651",
-            email: "sales@sagenginnering.in"
-        }
-    ];
+      {/* ── Quick stats ───────────────────────────────────────────── */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {QUICK_STATS.map(({ icon: Icon, label, value }) => (
+            <div key={label}
+              className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100
+                         text-center hover:shadow-md transition-shadow">
+              <div className="w-10 h-10 bg-[#41BCF5]/10 rounded-xl flex items-center
+                              justify-center mx-auto mb-3">
+                <Icon size={18} className="text-[#41BCF5]" />
+              </div>
+              <p className="text-2xl font-black text-[#0B1A35]">{value}</p>
+              <p className="text-xs text-gray-500 font-medium mt-0.5">{label}</p>
+            </div>
+          ))}
+        </div>
+      </div>
 
-    const quickStats = [
-        { icon: Phone, label: "24/7 Support", value: "Available" },
-        { icon: Clock, label: "Response Time", value: "< 2 Hours" },
-        { icon: Award, label: "Client Satisfaction", value: "98%" },
-        { icon: Globe, label: "Years Experience", value: "15+" }
-    ];
+      {/* ── Contact method cards ──────────────────────────────────── */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {CONTACT_METHODS.map(({ icon: Icon, title, lines, note, href, bg }) => {
+            const Wrapper = href
+              ? ({ children }) => (
+                  <a href={href} target={href.startsWith('http') ? '_blank' : undefined}
+                    rel="noopener noreferrer">{children}</a>
+                )
+              : ({ children }) => <div>{children}</div>;
+            return (
+              <Wrapper key={title}>
+                <div className="bg-white rounded-2xl p-6 border border-gray-100
+                                shadow-sm hover:shadow-lg hover:-translate-y-1
+                                transition-all duration-300 group h-full">
+                  <div className={`w-12 h-12 ${bg} rounded-2xl flex items-center
+                                   justify-center mb-4 group-hover:scale-105
+                                   transition-transform duration-300`}>
+                    <Icon size={22} className="text-white" />
+                  </div>
+                  <h3 className="font-black text-[#0B1A35] mb-2">{title}</h3>
+                  {lines.map((l, i) => (
+                    <p key={i} className="text-gray-700 font-medium text-sm">{l}</p>
+                  ))}
+                  <p className="text-gray-400 text-xs mt-1">{note}</p>
+                </div>
+              </Wrapper>
+            );
+          })}
+        </div>
+      </div>
 
-    return (
-        <div className="min-h-screen bg-gray-50 mt-20">
-            {/* Navigation */}
-            {/* Hero Section */}
+      {/* ── Form + Office ─────────────────────────────────────────── */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
+        <div className="grid lg:grid-cols-2 gap-8">
 
-               <div className="bg-[#41BCF5] text-white py-20 relative overflow-hidden mt-10">
-        <div className="absolute inset-0 bg-black/10"></div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div className="text-center">
-            <h1 className="text-4xl lg:text-6xl font-black mb-6">Contact Us</h1>
-            <p className="text-xl text-purple-100 max-w-3xl mx-auto mb-8">
-             Discover premium commercial kitchen equipment tailored to meet your needs. Let’s bring efficiency and innovation to your business.
+          {/* Contact form */}
+          <div className="bg-white rounded-2xl p-7 shadow-sm border border-gray-100">
+            <h2 className="text-2xl font-black text-[#0B1A35] mb-1">
+              Send Us a Message
+            </h2>
+            <p className="text-gray-500 text-sm mb-6">
+              Fill in the form and we&apos;ll respond within 2 hours during business hours.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              {/* <Link href="/contact" >
-              <button className="bg-white text-[#002F4C] px-8 py-4 rounded-2xl font-bold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                Get Free Consultation
-              </button>
-              </Link>
-              <Link href="/products/All">
-              <button className="border-2 border-white text-white px-8 py-4 rounded-2xl font-bold hover:bg-white hover:text-black transition-all duration-300">
-                View Our Work
-              </button>
-              </Link> */}
+
+            {isSubmitted ? (
+              <div className="text-center py-12">
+                <div className="w-16 h-16 bg-green-50 rounded-2xl flex items-center
+                                justify-center mx-auto mb-4">
+                  <CheckCircle size={32} className="text-green-500" />
+                </div>
+                <h3 className="text-xl font-black text-[#0B1A35] mb-2">Message Sent!</h3>
+                <p className="text-gray-500 text-sm mb-6">
+                  Thank you for contacting us. We&apos;ll respond within 2 hours.
+                </p>
+                <button onClick={() => setIsSubmitted(false)}
+                  className="bg-[#41BCF5] text-white px-6 py-2.5 rounded-xl
+                             font-bold text-sm hover:bg-[#0B1A35] transition-colors">
+                  Send Another Message
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label required>First Name</Label>
+                    <input type="text" name="firstName" value={formData.firstName}
+                      onChange={handleInputChange} placeholder="Rahul"
+                      className={inputCls} required />
+                  </div>
+                  <div>
+                    <Label required>Last Name</Label>
+                    <input type="text" name="lastName" value={formData.lastName}
+                      onChange={handleInputChange} placeholder="Sharma"
+                      className={inputCls} required />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label required>Email</Label>
+                    <input type="email" name="email" value={formData.email}
+                      onChange={handleInputChange} placeholder="you@company.com"
+                      className={inputCls} required />
+                  </div>
+                  <div>
+                    <Label required>Phone</Label>
+                    <input type="tel" name="phone" value={formData.phone}
+                      onChange={handleInputChange} placeholder="+91 98xxx xxxxx"
+                      className={inputCls} required />
+                  </div>
+                </div>
+
+                <div>
+                  <Label>Company / Restaurant Name</Label>
+                  <input type="text" name="company" value={formData.company}
+                    onChange={handleInputChange} placeholder="Hotel Grand etc."
+                    className={inputCls} />
+                </div>
+
+                <div>
+                  <Label>Product Interest</Label>
+                  <select name="productInterest" value={formData.productInterest}
+                    onChange={handleInputChange} className={inputCls}>
+                    <option value="">Select a category…</option>
+                    {PRODUCT_OPTIONS.map(o => (
+                      <option key={o} value={o}>{o}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <Label>Subject</Label>
+                  <input type="text" name="subject" value={formData.subject}
+                    onChange={handleInputChange}
+                    placeholder="e.g. Quote for 4-burner cooking range"
+                    className={inputCls} />
+                </div>
+
+                <div>
+                  <Label required>Message</Label>
+                  <textarea name="message" value={formData.message}
+                    onChange={handleInputChange} rows={4}
+                    placeholder="Describe your requirements, quantity, dimensions…"
+                    className={`${inputCls} resize-none`} required />
+                </div>
+
+                <button type="submit"
+                  className="w-full bg-[#41BCF5] hover:bg-[#0B1A35] text-white
+                             py-3.5 rounded-xl font-bold shadow-lg
+                             hover:shadow-xl transition-all duration-300
+                             flex items-center justify-center gap-2 group">
+                  <Send size={16} className="group-hover:translate-x-0.5 transition-transform" />
+                  Send Message
+                </button>
+              </form>
+            )}
+          </div>
+
+          {/* Office info + map */}
+          <div className="space-y-6">
+            <div className="bg-white rounded-2xl p-7 shadow-sm border border-gray-100">
+              <h3 className="text-lg font-black text-[#0B1A35] mb-5 flex items-center gap-2">
+                <Building size={17} className="text-[#41BCF5]" /> Our Offices
+              </h3>
+              <div className="space-y-5">
+                {[
+                  {
+                    label: "Head Office — Mumbai",
+                    addr:  "Survey No. 23, G. No. 15, DK Market, Subhash Nagar, Jangleshwar Road, Asalpha Village, Ghatkopar West, Mumbai – 400084",
+                  },
+                  {
+                    label: "Branch Office — Pune",
+                    addr:  "Sr. No. 50/9A/4, Flat No. 13, SAI PRASAD, GHULE Nagar, Vadgaon Bk, Haveli, Pune – 411041",
+                  },
+                ].map(({ label, addr }) => (
+                  <div key={label} className="flex items-start gap-3">
+                    <div className="w-8 h-8 bg-[#41BCF5]/10 rounded-lg flex items-center
+                                    justify-center flex-shrink-0 mt-0.5">
+                      <MapPin size={15} className="text-[#41BCF5]" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-[#0B1A35] text-sm mb-0.5">{label}</p>
+                      <p className="text-gray-500 text-sm leading-relaxed">{addr}</p>
+                    </div>
+                  </div>
+                ))}
+
+                <div className="flex items-center gap-3 pt-1">
+                  <div className="w-8 h-8 bg-[#41BCF5]/10 rounded-lg flex items-center
+                                  justify-center flex-shrink-0">
+                    <Phone size={15} className="text-[#41BCF5]" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-[#0B1A35] text-sm">+91 98920 84449</p>
+                    <p className="text-gray-500 text-sm">+91 90820 08085</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-[#41BCF5]/10 rounded-lg flex items-center
+                                  justify-center flex-shrink-0">
+                    <Mail size={15} className="text-[#41BCF5]" />
+                  </div>
+                  <a href="mailto:sales@sagenginnering.in"
+                    className="text-sm text-gray-600 hover:text-[#41BCF5] transition-colors">
+                    sales@sagenginnering.in
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* Google Maps embed */}
+            <div className="bg-white rounded-2xl overflow-hidden shadow-sm
+                            border border-gray-100">
+              <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-2">
+                <MapPin size={15} className="text-[#41BCF5]" />
+                <h4 className="font-bold text-[#0B1A35] text-sm">Find Us on Map</h4>
+              </div>
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3770.2!2d72.913!3d19.074!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7c6306644edc1%3A0x5da4ed8f8d648c69!2sGhatkopar+West%2C+Mumbai!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin"
+                width="100%"
+                height="220"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="SAG Engineering Location"
+              />
+              <div className="px-5 py-3">
+                <a
+                  href="https://maps.google.com/?q=Asalpha+Ghatkopar+West+Mumbai"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold
+                             text-[#41BCF5] hover:text-[#0B1A35] transition-colors">
+                  <MapPin size={12} /> Open in Google Maps
+                </a>
+              </div>
+            </div>
+
+            {/* Immediate assistance box */}
+            <div className="bg-gradient-to-r from-[#0B1A35] to-[#1a3158]
+                            rounded-2xl p-6 text-white">
+              <h4 className="font-black mb-4">Need Immediate Assistance?</h4>
+              <div className="space-y-3">
+                {[
+                  { icon: Phone, title: "Direct Line",     sub: "+91 98920 84449" },
+                  { icon: Clock, title: "Response Time",   sub: "Within 2 hours (business hours)" },
+                  { icon: Award, title: "Satisfaction Rate", sub: "98% happy clients" },
+                ].map(({ icon: Icon, title, sub }) => (
+                  <div key={title} className="flex items-start gap-3">
+                    <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center
+                                    justify-center flex-shrink-0">
+                      <Icon size={14} className="text-[#41BCF5]" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-sm">{title}</p>
+                      <p className="text-white/60 text-xs">{sub}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
       </div>
-            <section className="pt-24 pb-16 bg-gradient-to-br from-blue-50 via-white to-orange-50">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    
 
-                         <section className="py-20 bg-gray-50">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="grid lg:grid-cols-2 gap-16">
-                        {/* Contact Form */}
-                        <div className="bg-white rounded-2xl p-8 shadow-lg">
-                            <div className="mb-8">
-                                <h2 className="text-3xl font-bold text-gray-900 mb-4">Send us a Message</h2>
-                                <p className="text-gray-600">
-                                    Fill out the form below and we&apos;ll get back to you within 2 hours during business hours.
-                                </p>
-
-                            </div>
-
-                            {isSubmitted ? (
-                                <div className="text-center py-12">
-                                    <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                                        <CheckCircle className="text-green-600" size={40} />
-                                    </div>
-                                    <h3 className="text-2xl font-bold text-gray-900 mb-4">Message Sent!</h3>
-                                    <p className="text-gray-600 mb-6">
-                                        Thank you for contacting us. We&apos;ll respond to your inquiry within 2 hours.
-                                    </p>
-                                    <button
-                                        onClick={() => setIsSubmitted(false)}
-                                        className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-300"
-                                    >
-                                        Send Another Message
-                                    </button>
-                                </div>
-                            ) : (
-                                <div className="space-y-6" onSubmit={handleSubmit}>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-gray-700 font-semibold mb-2">First Name *</label>
-                                            <input
-                                                type="text"
-                                                name="firstName"
-                                                value={formData.firstName}
-                                                onChange={handleInputChange}
-                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
-                                                placeholder="John"
-                                                required
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-gray-700 font-semibold mb-2">Last Name *</label>
-                                            <input
-                                                type="text"
-                                                name="lastName"
-                                                value={formData.lastName}
-                                                onChange={handleInputChange}
-                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
-                                                placeholder="Doe"
-                                                required
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-gray-700 font-semibold mb-2">Email Address *</label>
-                                            <input
-                                                type="email"
-                                                name="email"
-                                                value={formData.email}
-                                                onChange={handleInputChange}
-                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
-                                                placeholder="john@example.com"
-                                                required
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-gray-700 font-semibold mb-2">Phone Number</label>
-                                            <input
-                                                type="tel"
-                                                name="phone"
-                                                value={formData.phone}
-                                                onChange={handleInputChange}
-                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
-                                                placeholder="+91 98765 43210"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-gray-700 font-semibold mb-2">Company Name</label>
-                                        <input
-                                            type="text"
-                                            name="company"
-                                            value={formData.company}
-                                            onChange={handleInputChange}
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
-                                            placeholder="Your Company Name"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-gray-700 font-semibold mb-2">Select Category</label>
-                                        <select
-                                            name="productInterest"
-                                            value={formData.productInterest}
-                                            onChange={handleInputChange}
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
-                                        >
-                                            <option value="">Select a product category</option>
-                                            <option value="Cooking Equipments">Cooking Equipments</option>
-                                            <option value="Stainless Steel Products">Stainless Steel Products</option>
-                                            <option value="Fast Food Equipments">Fast Food Equipments</option>
-                                            <option value="Galley Equipments">Galley Equipments</option>
-                                            <option value="Bakery Equipments">Bakery Equipments</option>
-                                             <option value="Commercial Washing Equipments">Commercial Washing Equipments</option>
-                                               <option value="Commercial Refrigeration">Commercial Refrigeration</option>
-                                                 <option value="Work And Preparation Table">Work And Preparation Table</option>
-                                                   <option value="Commercial Kitchen Exhaut Hood">Commercial Kitchen Exhaut Hood</option>
-                                                     <option value="Food Processing Equipments">Food Processing Equipments</option>
-                                                       <option value="Chapati Making Machine">Chapati Making Machine</option>
-                                                        
-
-                                        </select>
-                                    </div>
-
-                                    {/* <div>
-                                        <label className="block text-gray-700 font-semibold mb-2">Subject *</label>
-                                        <input
-                                            type="text"
-                                            name="subject"
-                                            value={formData.subject}
-                                            onChange={handleInputChange}
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
-                                            placeholder="Brief description of your inquiry"
-                                            required
-                                        />
-                                    </div> */}
-
-                                    <div>
-                                        <label className="block text-gray-700 font-semibold mb-2">Message *</label>
-                                        <textarea
-                                            name="message"
-                                            value={formData.message}
-                                            onChange={handleInputChange}
-                                            rows={5}
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 resize-none"
-                                            placeholder="Please provide details about your requirements, specifications, quantities, etc."
-                                            required
-                                        ></textarea>
-                                    </div>
-
-                                    <button
-                                        onClick={handleSubmit}
-                                        className="w-full bg-[#41BCF5] text-white py-4 rounded-lg text-lg font-semibold hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 flex items-center justify-center group"
-                                    >
-                                        <Send className="mr-2 group-hover:translate-x-1 transition-transform" size={20} />
-                                        Send Message
-                                    </button>
-
-                                    <p className="text-gray-500 text-sm text-center">
-                                        * Required fields. We respect your privacy and will never share your information.
-                                    </p>
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Office Details & Map */}
-                        <div className="space-y-8">
-                            {/* Office Information */}
-                            <div className="bg-white rounded-2xl p-8 shadow-lg">
-                                <h3 className="text-2xl font-bold text-gray-900 mb-6">Our Office</h3>
-                                {officeDetails.map((office, index) => (
-                                    <div key={index} className="space-y-6">
-                                        <div className="flex items-start space-x-4">
-                                            <div className="w-12 h-12 bg-[#41BCF5] rounded-xl flex items-center justify-center flex-shrink-0 mt-1">
-                                                <office.icon className="text-white" size={24} />
-                                            </div>
-                                            <div>
-                                                <h4 className="text-xl font-bold text-gray-900 mb-3">{office.title}</h4>
-                                                <div className="space-y-3">
-                                                    <div className="flex items-start space-x-3">
-                                                        <MapPin className="text-gray-400 mt-1 flex-shrink-0" size={18} />
-                                                        <p className="text-gray-600 whitespace-pre-line">{office.address}</p>
-                                                    </div>
-                                                    <div className="flex items-center space-x-3">
-                                                        <Phone className="text-gray-400 flex-shrink-0" size={18} />
-                                                        <p className="text-gray-600">{office.phone}</p>
-                                                    </div>
-                                                    <div className="flex items-center space-x-3">
-                                                        <Mail className="text-gray-400 flex-shrink-0" size={18} />
-                                                        <p className="text-gray-600">{office.email}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* Map Placeholder */}
-                            <div className="bg-white rounded-2xl p-8 shadow-lg">
-                                <h3 className="text-2xl font-bold text-gray-900 mb-6">Find Us</h3>
-                                <div className="bg-gradient-to-br from-blue-100 to-orange-100 rounded-xl h-64 flex items-center justify-center">
-                                    <div className="text-center">
-                                        <Navigation className="text-[#41BCF5] mx-auto mb-4" size={48} />
-                                        <h4 className="text-xl font-bold text-gray-900 mb-2">Interactive Map</h4>
-                                        <p className="text-gray-600">Mumbai, Maharashtra</p>
-                                        <button className="mt-4 bg-[#41BCF5] text-white px-6 py-2 rounded-lg font-semibold hover:shadow-lg transition-all duration-300">
-                                            Get Directions
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Additional Contact Info */}
-                            <div className="bg-[#41BCF5] rounded-2xl p-8 text-white">
-                                <h3 className="text-2xl font-bold mb-6">Need Immediate Assistance?</h3>
-                                <div className="space-y-4">
-                                    <div className="flex items-center space-x-3">
-                                        <Smartphone className="text-blue-200" size={20} />
-                                        <div>
-                                            <p className="font-semibold">Emergency Hotline</p>
-                                            <p className="text-blue-200">+91 8047631651</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center space-x-3">
-                                        <Clock className="text-blue-200" size={20} />
-                                        <div>
-                                            <p className="font-semibold">Response Time</p>
-                                            <p className="text-blue-200">Within 2 hours during business hours</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center space-x-3">
-                                        <Award className="text-blue-200" size={20} />
-                                        <div>
-                                            <p className="font-semibold">Customer Satisfaction</p>
-                                            <p className="text-blue-200">98% satisfaction rate</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-                    
-
-                    {/* Quick Stats */}
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-                        {quickStats.map((stat, index) => (
-                            <div key={index} className="bg-white rounded-2xl p-6 shadow-lg text-center group hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
-                                <div className="w-12 h-12 bg-[#41BCF5] rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                                    <stat.icon className="text-white" size={24} />
-                                </div>
-                                <p className="text-2xl font-bold text-gray-900 mb-1">{stat.value}</p>
-                                <p className="text-gray-600 text-sm">{stat.label}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* Contact Methods */}
-            <section className="py-20 bg-white">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center mb-16">
-                        <h2 className="text-4xl font-bold text-gray-900 mb-6">Get in Touch</h2>
-                        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                            Multiple ways to reach us - choose what works best for you
-                        </p>
-                    </div>
-
-                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-                        {contactMethods.map((method, index) => (
-                            <div key={index} className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border-l-4 border-blue-600">
-                                <div className={`w-16 h-16 bg-[#41BCF5] rounded-2xl flex items-center justify-center mb-6`}>
-                                    <method.icon className="text-white" size={32} />
-                                </div>
-                                <h3 className="text-2xl font-bold text-gray-900 mb-4">{method.title}</h3>
-                                <div className="space-y-2 mb-4">
-                                    <p className="text-lg font-semibold text-gray-800">{method.primary}</p>
-                                    <p className="text-gray-600">{method.secondary}</p>
-                                </div>
-                                <p className="text-gray-500 text-sm">{method.description}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* Contact Form & Office Details */}
-       
-
-            {/* FAQ Section */}
-            <section className="py-20 bg-white">
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center mb-16">
-                        <h2 className="text-4xl font-bold text-gray-900 mb-6">Frequently Asked Questions</h2>
-                        <p className="text-xl text-gray-600">
-                            Quick answers to common questions about our services and processes
-                        </p>
-                    </div>
-
-                    <div className="space-y-6">
-                        {[
-                            {
-                                question: "What is your typical lead time for custom equipment?",
-                                answer: "Our standard lead time is 2-4 weeks depending on the complexity and specifications of your custom equipment. We'll provide an accurate timeline during our initial consultation."
-                            },
-                            {
-                                question: "Do you provide installation and maintenance services?",
-                                answer: "Yes, we offer complete installation services and ongoing maintenance support for all our equipment. Our technical team ensures proper setup and optimal performance."
-                            },
-                            {
-                                question: "What quality certifications do you have?",
-                                answer: "All our products meet industry standards for medical-grade and food-grade stainless steel equipment. We maintain strict quality control processes and can provide certification documentation."
-                            },
-                            {
-                                question: "Can you create equipment based on our specific designs?",
-                                answer: "Absolutely! We specialize in custom manufacturing. Provide us with your drawings, specifications, or requirements, and our engineering team will work with you to bring your vision to life."
-                            },
-                            {
-                                question: "What is your warranty policy?",
-                                answer: "We provide a comprehensive warranty on all our products, typically 1-2 years depending on the equipment type. This covers manufacturing defects and ensures your peace of mind."
-                            }
-                        ].map((faq, index) => (
-                            <div key={index} className="bg-gray-50 rounded-2xl p-8 hover:bg-gray-100 transition-colors duration-300">
-                                <h3 className="text-xl font-bold text-gray-900 mb-4">{faq.question}</h3>
-                                <p className="text-gray-600 leading-relaxed">{faq.answer}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* CTA Section */}
-            {/* <section className="py-20 bg-gradient-to-r from-blue-600 to-blue-800">
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                    <h2 className="text-4xl font-bold text-white mb-6">
-                        Ready to Start Your Project?
-                    </h2>
-                    <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-                        Contact us today for a free consultation and quote. Our experts are ready to help
-                        you find the perfect stainless steel solution for your needs.
-                    </p>
-                    <div className="space-y-4 sm:space-y-0 sm:flex sm:space-x-4 sm:justify-center">
-                        <button className="w-full sm:w-auto bg-white text-blue-600 px-8 py-4 rounded-lg text-lg font-semibold hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center group">
-                            Get Free Quote
-                            <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />
-                        </button>
-                        <button className="w-full sm:w-auto border-2 border-white text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-white hover:text-blue-600 transition-all duration-300 flex items-center justify-center">
-                            <Phone className="mr-2" size={20} />
-                            Call Now
-                        </button>
-                    </div>
-                </div>
-            </section> */}
+      {/* ── FAQ ──────────────────────────────────────────────────── */}
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 mt-14 mb-16">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-black text-[#0B1A35] mb-2">
+            Frequently Asked Questions
+          </h2>
+          <p className="text-gray-500">Quick answers to common queries about our process</p>
         </div>
-    );
+        <div className="space-y-3">
+          {FAQS.map(faq => <FaqItem key={faq.q} q={faq.q} a={faq.a} />)}
+        </div>
+      </div>
+    </div>
+  );
 }
