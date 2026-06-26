@@ -1,80 +1,84 @@
 "use client";
-import React from 'react';
-import { useState, useEffect, useRef, useMemo } from 'react';
-import { Upload, X, Calendar, Tag, Link2 } from 'lucide-react';
-import dynamic from 'next/dynamic';
 
+import React from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
+import { Upload, X, Calendar, Tag, Link2, Edit, Trash2 } from "lucide-react";
+import dynamic from "next/dynamic";
 
-// Dynamically import Jodit Editor to avoid SSR issues
-const JoditEditor = dynamic(() => import('jodit-react'), { ssr: false });
+const JoditEditor = dynamic(() => import("jodit-react"), { ssr: false });
 
 export default function Post() {
   const editor = useRef(null);
+
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  const [editMode, setEditMode] = useState(false);
+  const [editingBlogId, setEditingBlogId] = useState(null);
+
   const [formData, setFormData] = useState({
-    title: '',
-    content: '',
-    metaDescription: '',
-    canonicalUrl: '',
-    tags: '',
+    title: "",
+    content: "",
+    metaDescription: "",
+    canonicalUrl: "",
+    tags: "",
   });
+
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
-  const [submitStatus, setSubmitStatus] = useState({ type: '', message: '' });
+  const [submitStatus, setSubmitStatus] = useState({ type: "", message: "" });
 
-  // Jodit Editor Configuration
   const editorConfig = useMemo(
     () => ({
       readonly: false,
-      placeholder: 'Write your blog content...',
+      placeholder: "Write your blog content...",
       minHeight: 400,
       toolbar: true,
       spellcheck: true,
-      language: 'en',
-      toolbarButtonSize: 'medium',
+      language: "en",
+      toolbarButtonSize: "medium",
       toolbarAdaptive: false,
       showCharsCounter: true,
       showWordsCounter: true,
       showXPathInStatusbar: false,
       askBeforePasteHTML: false,
       askBeforePasteFromWord: false,
-      defaultActionOnPaste: 'insert_clear_html',
+      defaultActionOnPaste: "insert_clear_html",
       buttons: [
-        'source',
-        '|',
-        'bold',
-        'italic',
-        'underline',
-        'strikethrough',
-        '|',
-        'ul',
-        'ol',
-        '|',
-        'outdent',
-        'indent',
-        '|',
-        'font',
-        'fontsize',
-        'brush',
-        'paragraph',
-        '|',
-        'image',
-        'video',
-        'table',
-        'link',
-        '|',
-        'align',
-        'undo',
-        'redo',
-        '|',
-        'hr',
-        'eraser',
-        'copyformat',
-        '|',
-        'symbol',
-        'fullsize',
-        'print',
+        "source",
+        "|",
+        "bold",
+        "italic",
+        "underline",
+        "strikethrough",
+        "|",
+        "ul",
+        "ol",
+        "|",
+        "outdent",
+        "indent",
+        "|",
+        "font",
+        "fontsize",
+        "brush",
+        "paragraph",
+        "|",
+        "image",
+        "video",
+        "table",
+        "link",
+        "|",
+        "align",
+        "undo",
+        "redo",
+        "|",
+        "hr",
+        "eraser",
+        "copyformat",
+        "|",
+        "symbol",
+        "fullsize",
+        "print",
       ],
       uploader: {
         insertImageAsBase64URI: true,
@@ -94,13 +98,14 @@ export default function Post() {
   const fetchBlogs = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/blog');
+      const res = await fetch("/api/blog");
       const data = await res.json();
+
       if (data.success) {
         setBlogs(data.blogs);
       }
     } catch (err) {
-      console.error('Error fetching blogs:', err);
+      console.error("Error fetching blogs:", err);
     } finally {
       setLoading(false);
     }
@@ -108,62 +113,145 @@ export default function Post() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleContentChange = (newContent) => {
-    setFormData(prev => ({ ...prev, content: newContent }));
+    setFormData((prev) => ({ ...prev, content: newContent }));
   };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
+
     if (file) {
       setImageFile(file);
       setImagePreview(URL.createObjectURL(file));
     }
   };
 
+  const resetForm = () => {
+    setFormData({
+      title: "",
+      content: "",
+      metaDescription: "",
+      canonicalUrl: "",
+      tags: "",
+    });
+
+    setImageFile(null);
+    setImagePreview(null);
+    setEditMode(false);
+    setEditingBlogId(null);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitStatus({ type: '', message: '' });
+    setSubmitStatus({ type: "", message: "" });
 
     const form = new FormData();
-    form.append('title', formData.title);
-    form.append('content', formData.content);
-    form.append('metaDescription', formData.metaDescription);
-    form.append('canonicalUrl', formData.canonicalUrl);
-    form.append('tags', formData.tags);
+
+    if (editMode && editingBlogId) {
+      form.append("id", editingBlogId);
+    }
+
+    form.append("title", formData.title);
+    form.append("content", formData.content);
+    form.append("metaDescription", formData.metaDescription);
+    form.append("canonicalUrl", formData.canonicalUrl);
+    form.append("tags", formData.tags);
+
     if (imageFile) {
-      form.append('mainImage', imageFile);
+      form.append("mainImage", imageFile);
     }
 
     try {
       setLoading(true);
-      const res = await fetch('/api/blog', {
-        method: 'POST',
+
+      const res = await fetch("/api/blog", {
+        method: editMode ? "PUT" : "POST",
         body: form,
       });
 
       const data = await res.json();
 
       if (res.ok) {
-        setSubmitStatus({ type: 'success', message: 'Blog post created successfully!' });
-        setFormData({
-          title: '',
-          content: '',
-          metaDescription: '',
-          canonicalUrl: '',
-          tags: '',
+        setSubmitStatus({
+          type: "success",
+          message: editMode
+            ? "Blog post updated successfully!"
+            : "Blog post created successfully!",
         });
-        setImageFile(null);
-        setImagePreview(null);
+
+        resetForm();
         fetchBlogs();
       } else {
-        setSubmitStatus({ type: 'error', message: data.message || 'Failed to create blog post' });
+        setSubmitStatus({
+          type: "error",
+          message: data.message || "Failed to save blog post",
+        });
       }
     } catch {
+      setSubmitStatus({
+        type: "error",
+        message: "Network error. Please try again.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
-      setSubmitStatus({ type: 'error', message: 'Network error. Please try again.' });
+  const handleEdit = (blog) => {
+    setEditMode(true);
+    setEditingBlogId(blog.id);
+
+    setFormData({
+      title: blog.title || "",
+      content: blog.content || "",
+      metaDescription: blog.metaDescription || "",
+      canonicalUrl: blog.canonicalUrl || "",
+      tags: blog.tags || "",
+    });
+
+    setImageFile(null);
+    setImagePreview(blog.mainImage || null);
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this blog?"
+    );
+
+    if (!confirmDelete) return;
+
+    try {
+      setLoading(true);
+
+      const res = await fetch(`/api/blog?id=${id}`, {
+        method: "DELETE",
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setSubmitStatus({
+          type: "success",
+          message: "Blog deleted successfully!",
+        });
+
+        fetchBlogs();
+      } else {
+        setSubmitStatus({
+          type: "error",
+          message: data.message || "Failed to delete blog",
+        });
+      }
+    } catch {
+      setSubmitStatus({
+        type: "error",
+        message: "Network error. Please try again.",
+      });
     } finally {
       setLoading(false);
     }
@@ -177,20 +265,32 @@ export default function Post() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-4xl font-bold text-slate-800 mb-8">Blog Manager</h1>
+        <h1 className="text-4xl font-bold text-slate-800 mb-8">
+          Blog Manager
+        </h1>
 
         <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-8">
-          <h2 className="text-2xl font-semibold text-slate-800 mb-6">Create New Post</h2>
+          <h2 className="text-2xl font-semibold text-slate-800 mb-6">
+            {editMode ? "Update Post" : "Create New Post"}
+          </h2>
 
           {submitStatus.message && (
-            <div className={`p-4 rounded-lg mb-6 ${submitStatus.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+            <div
+              className={`p-4 rounded-lg mb-6 ${
+                submitStatus.type === "success"
+                  ? "bg-green-100 text-green-800"
+                  : "bg-red-100 text-red-800"
+              }`}
+            >
               {submitStatus.message}
             </div>
           )}
 
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Title</label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Title
+              </label>
               <input
                 type="text"
                 name="title"
@@ -203,21 +303,25 @@ export default function Post() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Content</label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Content
+              </label>
               <div className="border border-slate-300 rounded-lg overflow-hidden">
                 <JoditEditor
                   ref={editor}
                   value={formData.content}
                   config={editorConfig}
                   onBlur={handleContentChange}
-                  onChange={() => { }} // controlled by onBlur
+                  onChange={() => {}}
                   tabIndex={1}
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Meta Description</label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Meta Description
+              </label>
               <input
                 type="text"
                 name="metaDescription"
@@ -229,7 +333,9 @@ export default function Post() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Canonical URL</label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Canonical URL
+              </label>
               <input
                 type="text"
                 name="canonicalUrl"
@@ -241,7 +347,9 @@ export default function Post() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Tags</label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Tags
+              </label>
               <input
                 type="text"
                 name="tags"
@@ -253,10 +361,18 @@ export default function Post() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Main Image</label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Main Image
+              </label>
+
               {imagePreview ? (
                 <div className="relative">
-                  <img src={imagePreview} alt="Preview" className="w-full h-64 object-cover rounded-lg" />
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="w-full h-64 object-cover rounded-lg"
+                  />
+
                   <button
                     type="button"
                     onClick={clearImage}
@@ -285,27 +401,60 @@ export default function Post() {
               disabled={loading}
               className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Creating...' : 'Create Blog Post'}
+              {loading
+                ? editMode
+                  ? "Updating..."
+                  : "Creating..."
+                : editMode
+                ? "Update Blog Post"
+                : "Create Blog Post"}
             </button>
+
+            {editMode && (
+              <button
+                type="button"
+                onClick={resetForm}
+                className="w-full bg-slate-500 text-white py-3 rounded-lg font-semibold hover:bg-slate-600 transition"
+              >
+                Cancel Edit
+              </button>
+            )}
           </div>
         </div>
 
         <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8">
-          <h2 className="text-2xl font-semibold text-slate-800 mb-6">All Posts</h2>
+          <h2 className="text-2xl font-semibold text-slate-800 mb-6">
+            All Posts
+          </h2>
 
           {loading && blogs.length === 0 ? (
-            <div className="text-center py-12 text-slate-500">Loading blogs...</div>
+            <div className="text-center py-12 text-slate-500">
+              Loading blogs...
+            </div>
           ) : blogs.length === 0 ? (
-            <div className="text-center py-12 text-slate-500">No blog posts yet</div>
+            <div className="text-center py-12 text-slate-500">
+              No blog posts yet
+            </div>
           ) : (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {blogs.map((blog) => (
-                <div key={blog.id} className="border border-slate-200 rounded-xl overflow-hidden hover:shadow-lg transition">
+                <div
+                  key={blog.id}
+                  className="border border-slate-200 rounded-xl overflow-hidden hover:shadow-lg transition"
+                >
                   {blog.mainImage && (
-                    <img src={blog.mainImage} alt={blog.title} className="w-full h-48 object-cover" />
+                    <img
+                      src={blog.mainImage}
+                      alt={blog.title}
+                      className="w-full h-48 object-cover"
+                    />
                   )}
+
                   <div className="p-5">
-                    <h3 className="text-xl font-semibold text-slate-800 mb-2">{blog.title}</h3>
+                    <h3 className="text-xl font-semibold text-slate-800 mb-2">
+                      {blog.title}
+                    </h3>
+
                     <div
                       className="text-slate-600 text-sm mb-3 line-clamp-3"
                       dangerouslySetInnerHTML={{ __html: blog.content }}
@@ -318,16 +467,40 @@ export default function Post() {
                           <span>{blog.tags}</span>
                         </div>
                       )}
+
                       {blog.canonicalUrl && (
                         <div className="flex items-center gap-2">
                           <Link2 size={14} />
-                          <span className="truncate">{blog.canonicalUrl}</span>
+                          <span className="truncate">
+                            {blog.canonicalUrl}
+                          </span>
                         </div>
                       )}
+
                       <div className="flex items-center gap-2">
                         <Calendar size={14} />
-                        <span>{new Date(blog.createdAt).toLocaleDateString()}</span>
+                        <span>
+                          {new Date(blog.createdAt).toLocaleDateString()}
+                        </span>
                       </div>
+                    </div>
+
+                    <div className="flex gap-3 mt-5">
+                      <button
+                        type="button"
+                        onClick={() => handleEdit(blog)}
+                        className="flex-1 inline-flex items-center justify-center gap-2 bg-blue-600 text-white py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition"
+                      >
+                        <Edit size={16} /> Edit
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(blog.id)}
+                        className="flex-1 inline-flex items-center justify-center gap-2 bg-red-600 text-white py-2 rounded-lg text-sm font-semibold hover:bg-red-700 transition"
+                      >
+                        <Trash2 size={16} /> Delete
+                      </button>
                     </div>
                   </div>
                 </div>

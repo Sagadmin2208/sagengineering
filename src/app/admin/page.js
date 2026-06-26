@@ -18,7 +18,7 @@
         {/* Sidebar */}
         <div className={`${sidebarOpen ? 'w-64' : 'w-0'} bg-white border-r border-gray-200 transition-all duration-300 overflow-hidden`}>
           <div className="p-6 border-b border-gray-200">
-            <h1 className="text-2xl font-bold text-red-600">Admin Panelll</h1>
+            <h1 className="text-2xl font-bold text-red-600">Admin Panel</h1>
             <p className="text-sm text-gray-500 mt-1">SAG Management</p>
           </div>
           

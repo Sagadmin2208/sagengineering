@@ -11,9 +11,9 @@ const CONTACT_METHODS = [
   {
     icon:  Phone,
     title: "Call Us",
-    lines: ["+91 98920 84449", "+91 90820 08085"],
+    lines: ["+91 77386 93862", "+91 98920 84449"],
     note:  "Mon–Sat, 9 AM – 6 PM",
-    href:  "tel:+919892084449",
+    href:  "tel:+917738693862",
     bg:    "bg-[#41BCF5]",
   },
   {
@@ -354,8 +354,8 @@ export default function ContactUsPage() {
                     <Phone size={15} className="text-[#41BCF5]" />
                   </div>
                   <div>
-                    <p className="font-bold text-[#0B1A35] text-sm">+91 98920 84449</p>
-                    <p className="text-gray-500 text-sm">+91 90820 08085</p>
+                    <p className="font-bold text-[#0B1A35] text-sm">+91 77386 93862</p>
+                    <p className="text-gray-500 text-sm">+91 98920 84449</p>
                   </div>
                 </div>
 
@@ -373,12 +373,12 @@ export default function ContactUsPage() {
             </div>
 
             {/* Google Maps embed */}
-            <div className="bg-white rounded-2xl overflow-hidden shadow-sm
-                            border border-gray-100">
+            <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
               <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-2">
                 <MapPin size={15} className="text-[#41BCF5]" />
                 <h4 className="font-bold text-[#0B1A35] text-sm">Find Us on Map</h4>
               </div>
+
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3770.2!2d72.913!3d19.074!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7c6306644edc1%3A0x5da4ed8f8d648c69!2sGhatkopar+West%2C+Mumbai!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin"
                 width="100%"
@@ -389,25 +389,27 @@ export default function ContactUsPage() {
                 referrerPolicy="no-referrer-when-downgrade"
                 title="SAG Engineering Location"
               />
+
               <div className="px-5 py-3">
                 <a
-                  href="https://maps.google.com/?q=Asalpha+Ghatkopar+West+Mumbai"
+                  href="https://maps.app.goo.gl/ajWVcBtUmgZF3NBT7"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs font-bold
-                             text-[#41BCF5] hover:text-[#0B1A35] transition-colors">
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-[#41BCF5] hover:text-[#0B1A35] transition-colors"
+                  aria-label="Open SAG Engineering office location in Google Maps"
+                >
                   <MapPin size={12} /> Open in Google Maps
                 </a>
               </div>
             </div>
-
+              
             {/* Immediate assistance box */}
             <div className="bg-gradient-to-r from-[#0B1A35] to-[#1a3158]
                             rounded-2xl p-6 text-white">
               <h4 className="font-black mb-4">Need Immediate Assistance?</h4>
               <div className="space-y-3">
                 {[
-                  { icon: Phone, title: "Direct Line",     sub: "+91 98920 84449" },
+                  { icon: Phone, title: "Direct Line",     sub: "+91 77386 93862" },
                   { icon: Clock, title: "Response Time",   sub: "Within 2 hours (business hours)" },
                   { icon: Award, title: "Satisfaction Rate", sub: "98% happy clients" },
                 ].map(({ icon: Icon, title, sub }) => (

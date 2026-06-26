@@ -39,7 +39,7 @@ function ProductDetailsPage() {
   const slug   = params?.slug || 'not-found';
 
   /* ── State ──────────────────────────────────────────────────── */
-  const [activeTab,    setActiveTab   ] = useState('overview');
+  const [activeTab,    setActiveTab   ] = useState('over view');
   const [isModalOpen,  setIsModalOpen ] = useState(false);
   const [submitted,    setSubmitted   ] = useState(false);
   const [product,      setProduct     ] = useState(null);

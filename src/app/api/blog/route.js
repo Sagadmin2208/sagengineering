@@ -115,3 +115,95 @@ export async function GET() {
     );
   }
 }
+export async function DELETE(req) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json(
+        { success: false, message: "Blog ID is required" },
+        { status: 400 }
+      );
+    }
+
+    await db.execute("DELETE FROM blogs WHERE id = ?", [id]);
+
+    return NextResponse.json({
+      success: true,
+      message: "Blog deleted successfully",
+    });
+  } catch (err) {
+    console.error("Error deleting blog:", err);
+    return NextResponse.json(
+      { success: false, message: "Error deleting blog", error: err.message },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(req) {
+  try {
+    const formData = await req.formData();
+
+    const id = formData.get("id");
+    const title = formData.get("title");
+    const content = formData.get("content");
+    const metaDescription = formData.get("metaDescription");
+    const canonicalUrl = formData.get("canonicalUrl");
+    const tags = formData.get("tags");
+    const mainImage = formData.get("mainImage");
+
+    if (!id || !title || !content) {
+      return NextResponse.json(
+        { success: false, message: "ID, title and content are required" },
+        { status: 400 }
+      );
+    }
+
+    let imageUrl = null;
+
+    if (mainImage && typeof mainImage === "object") {
+      const bytes = await mainImage.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+
+      const uploadRes = await new Promise((resolve, reject) => {
+        cloudinary.uploader
+          .upload_stream({ folder: "blogs" }, (err, result) => {
+            if (err) reject(err);
+            else resolve(result);
+          })
+          .end(buffer);
+      });
+
+      imageUrl = uploadRes.secure_url;
+    }
+
+    if (imageUrl) {
+      await db.execute(
+        `UPDATE blogs 
+         SET title = ?, content = ?, metaDescription = ?, canonicalUrl = ?, tags = ?, mainImage = ?, updatedAt = NOW()
+         WHERE id = ?`,
+        [title, content, metaDescription || null, canonicalUrl || null, tags || null, imageUrl, id]
+      );
+    } else {
+      await db.execute(
+        `UPDATE blogs 
+         SET title = ?, content = ?, metaDescription = ?, canonicalUrl = ?, tags = ?, updatedAt = NOW()
+         WHERE id = ?`,
+        [title, content, metaDescription || null, canonicalUrl || null, tags || null, id]
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: "Blog updated successfully",
+    });
+  } catch (err) {
+    console.error("Error updating blog:", err);
+    return NextResponse.json(
+      { success: false, message: "Error updating blog", error: err.message },
+      { status: 500 }
+    );
+  }
+}

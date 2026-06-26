@@ -51,7 +51,7 @@ function Hero() {
   }, [backgroundImages]);
 
   return (
-    <section className="relative min-h-screen overflow-hidden bg-[#071122] mt-36">
+    <section className="relative min-h-screen overflow-hidden bg-[#071122] mt-24">
 
       {/* ── Background layer ──────────────────────────────────── */}
       <div className="absolute inset-0">
@@ -61,6 +61,9 @@ function Hero() {
             src={img}
             alt=""
             aria-hidden
+            loading={idx === 0 ? 'eager' : 'lazy'}
+            fetchPriority={idx === 0 ? 'high' : 'auto'}
+            decoding={idx === 0 ? 'sync' : 'async'}
             className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
               idx === currentImageIndex ? 'opacity-100' : 'opacity-0'
             }`}
@@ -173,6 +176,9 @@ function Hero() {
                         key={idx}
                         src={img}
                         alt={`SAG Engineering Product ${idx + 1}`}
+                        loading={idx === 0 ? 'eager' : 'lazy'}
+                        fetchPriority={idx === 0 ? 'high' : 'auto'}
+                        decoding="async"
                         className={`absolute inset-0 w-full h-full object-cover
                                     transition-all duration-1000 ${
                           idx === currentImageIndex

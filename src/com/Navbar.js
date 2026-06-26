@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Phone, Mail, Menu, X, Award, ChevronDown, ArrowRight, FileText, Youtube, Instagram, Linkedin, Facebook } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import Image from 'next/image';
 
 function Navbar() {
   const [isMenuOpen, setIsMenuOpen]   = useState(false);
@@ -79,7 +80,6 @@ function Navbar() {
 
   return (
     <div className="fixed top-0 w-full z-50">
-
       {/* ── Top bar ─────────────────────────────────────────────── */}
       <div className="bg-[#0B1A35] text-white py-2 border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -87,12 +87,12 @@ function Navbar() {
 
             {/* Contact info */}
             <div className="flex items-center gap-5 text-sm">
-              <a href="tel:+919892084449"
+              <a href="tel:+917738693862"
                 className="flex items-center gap-2 hover:text-[#41BCF5] transition-colors group">
                 <span className="w-5 h-5 bg-[#41BCF5] rounded-full flex items-center justify-center flex-shrink-0">
                   <Phone className="w-2.5 h-2.5" />
                 </span>
-                <span className="font-medium">+91 98920 84449</span>
+                <span className="font-medium">+91 77386 93862</span>
               </a>
 
               <a href="mailto:sales@sagenginnering.in"
@@ -131,7 +131,10 @@ function Navbar() {
 
             {/* Logo */}
             <Link href="/" className="flex-shrink-0">
-              <img src="/logomain.jpeg" alt="S.A.G. Engineering" className="h-12 w-auto object-contain" />
+              <Image src="/logomain.jpeg" alt="S.A.G. Engineering Products"
+                width={160} height={48}
+                className="h-12 w-auto object-contain"
+                priority />
             </Link>
 
             {/* Desktop links */}
@@ -161,7 +164,8 @@ function Navbar() {
                                             border border-gray-100 group-hover:border-[#41BCF5]/40
                                             transition-colors flex-shrink-0">
                               <img src={cat.image} alt={cat.name}
-                                className="w-full h-full object-cover" />
+                                className="w-full h-full object-cover"
+                                loading="lazy" decoding="async" />
                             </div>
                             <span className="text-[10px] font-bold uppercase tracking-wide
                                              text-[#0B1A35] group-hover:text-[#41BCF5]
@@ -267,5 +271,4 @@ function Navbar() {
     </div>
   );
 }
-
 export default Navbar;

@@ -1,6 +1,7 @@
 import { Mail, Phone, MapPin, Youtube, Instagram, Linkedin, Facebook } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
+import Image from 'next/image';
 
 const socialLinks = [
   { Icon: Youtube,   href: "https://www.youtube.com/@prashantgatkal4956",           label: "YouTube"   },
@@ -63,7 +64,8 @@ function Footer() {
 
           {/* ── Company Info ─────────────────────────────────────── */}
           <div>
-            <img src="/logomain.jpeg" alt="SAG Engineering Products"
+            <Image src="/logomain.jpeg" alt="SAG Engineering Products"
+              width={160} height={56}
               className="h-14 w-auto mb-5 rounded-lg object-contain" />
             <p className="text-gray-400 text-sm leading-relaxed mb-6">
               Premium manufacturer, supplier &amp; exporter of commercial kitchen
@@ -107,7 +109,7 @@ function Footer() {
             <SectionHeading>Contact Us</SectionHeading>
             <div className="space-y-4">
               {/* Phone */}
-              <a href="tel:+919892084449"
+              <a href="tel:+917738693862"
                 className="flex items-start gap-3 text-gray-400 hover:text-[#41BCF5] transition-colors group">
                 <div className="w-9 h-9 bg-white/10 group-hover:bg-[#41BCF5]/20 rounded-lg
                                 flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors">
@@ -115,8 +117,8 @@ function Footer() {
                 </div>
                 <div>
                   <p className="text-[10px] text-gray-600 uppercase tracking-wider mb-0.5">Call Us</p>
-                  <p className="text-sm font-medium">+91 98920 84449</p>
-                  <p className="text-sm">+91 90820 08085</p>
+                  <p className="text-sm font-medium">+91 77386 93862</p>
+                  <p className="text-sm">+91 98920 84449</p>
                 </div>
               </a>
 
@@ -134,16 +136,28 @@ function Footer() {
               </a>
 
               {/* Address */}
-              <div className="flex items-start gap-3 text-gray-400">
-                <div className="w-9 h-9 bg-white/10 rounded-lg flex items-center
-                                justify-center flex-shrink-0 mt-0.5">
+              <a
+                href="https://maps.app.goo.gl/ajWVcBtUmgZF3NBT7"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-start gap-3 text-gray-400 hover:text-[#41BCF5] transition-colors group"
+                aria-label="View our office location on Google Maps"
+              >
+                <div className="w-9 h-9 bg-white/10 group-hover:bg-[#41BCF5]/20 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors">
                   <MapPin className="w-4 h-4 text-[#41BCF5]" />
                 </div>
+
                 <div>
-                  <p className="text-[10px] text-gray-600 uppercase tracking-wider mb-0.5">Head Office</p>
-                  <p className="text-sm">Ghatkopar West,<br />Mumbai – 400084</p>
+                  <p className="text-[10px] text-gray-600 uppercase tracking-wider mb-0.5">
+                    Head Office
+                  </p>
+
+                  <p className="text-sm group-hover:underline">
+                    Ghatkopar West,<br />
+                    Mumbai – 400084
+                  </p>
                 </div>
-              </div>
+              </a>
 
               {/* Hours */}
               <div className="bg-white/5 rounded-xl px-4 py-3 mt-1">
@@ -166,10 +180,10 @@ function Footer() {
               © {new Date().getFullYear()} S.A.G. Engineering Products. All rights reserved.
             </p>
             <div className="flex items-center gap-3 text-sm">
-              <a href="https://www.newnessmarketing.com" target="_blank" rel="noopener noreferrer"
+              {/* <a href="https://www.newnessmarketing.com" target="_blank" rel="noopener noreferrer"
                 className="text-gray-500 hover:text-[#41BCF5] transition-colors text-xs">
                 Design: Newness Marketing
-              </a>
+              </a> */}
               <span className="text-gray-700 hidden sm:inline">|</span>
               <a href="#" className="text-gray-500 hover:text-white transition-colors text-xs">
                 Privacy Policy

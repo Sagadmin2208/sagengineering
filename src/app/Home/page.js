@@ -41,7 +41,7 @@ const products = [
     title:       "Hospital Equipment",
     subtitle:    "Healthcare-Grade Solutions",
     description: "Premium medical-grade stainless steel equipment — surgical fixtures, scrub sinks, and specialized furniture engineered for healthcare environments.",
-    image:       "/Chapati Pressing Machine 350 ,600 &1000 Per Hour.webp",
+    image:       "/Hospital_Equipment_Home_Page.png",
     features:    ["Medical-Grade Steel", "Antimicrobial Surface", "Corrosion Resistant", "Easy Sterilization"],
     badge:       "ISO Certified",
     stats:       { projects: "300+", label: "Healthcare Projects" },
@@ -304,7 +304,7 @@ export default function SAGHomepage() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0B1A35]/40 to-transparent" />
               </div>
-              <div className="absolute -bottom-6 -left-6 bg-white rounded-2xl p-5
+              {/* <div className="absolute -bottom-6 -left-6 bg-white rounded-2xl p-5
                               shadow-2xl border border-gray-100">
                 <div className="flex items-center gap-4">
                   <div className="w-13 h-13 bg-[#41BCF5] rounded-2xl flex items-center
@@ -316,7 +316,7 @@ export default function SAGHomepage() {
                     <p className="text-gray-500 text-sm">Ghatkopar West, Maharashtra</p>
                   </div>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
@@ -343,7 +343,7 @@ export default function SAGHomepage() {
                   Get Free Quote
                 </button>
               </Link>
-              <a href="tel:+919892084449">
+              <a href="tel:+917738693862">
                 <button className="border-2 border-white/30 hover:border-[#41BCF5]
                                    text-white px-8 py-3.5 rounded-xl font-bold
                                    transition-all duration-300 flex items-center gap-2">
