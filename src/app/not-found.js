@@ -1,5 +1,7 @@
+import React from 'react';
 import Link from 'next/link';
 import { Home, Package, Phone, ArrowRight, SearchX } from 'lucide-react';
+
 
 export const metadata = {
   title: '404 — Page Not Found | SAG Engineering Products',
